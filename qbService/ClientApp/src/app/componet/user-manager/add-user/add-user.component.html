@@ -1,0 +1,65 @@
+<div class="container">
+  <h1>New User</h1><!--*ngIf='!editMode'-->
+  <!--<h1 *ngIf='editMode'>Edit Section</h1>-->
+  <hr>
+  <form novalidate [formGroup]="formGroup" (ngSubmit)="save()">
+
+    <!-- name -->
+    <div class="form-group">
+      <label for="name">Company Name</label>
+      <input formControlName="name"
+             class="form-control form-control-sm"
+             type="text" id="name" placeholder="Enter name">
+      <small id="emailHelp" class="form-text"
+             *ngIf="((formGroup.get('name').touched || formGroup.get('name').dirty) && formGroup.get('name').errors?.required)">
+        The field is required.
+      </small>
+    </div>
+
+
+    <!-- Email -->
+    <div class="form-group">
+      <label for="email">Email</label>
+      <div class="input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="validationTooltipUsernamePrepend">@</span>
+        </div>
+        <input formControlName="email"
+               #email
+               class="form-control form-control-sm"
+               type="text" id="email" placeholder="Enter Email">
+      </div>
+      <small id="emailHelp" class="form-text"
+             *ngIf="((formGroup.get('email').touched || formGroup.get('email').dirty) && formGroup.get('email').errors?.required)">
+        The field is required.
+      </small>
+      <small class="form-text" *ngIf="formGroup.get('email').errors?.anyEmail">
+        There is a Email with that name "{{email.value}}".
+      </small>
+      <small class="form-text" *ngIf="!formGroup.get('email').errors?.required && formGroup.get('email').errors?.isValidEmail">
+        Invalid Email "{{email.value}}".
+      </small>
+    </div>
+
+    <!-- Phone -->
+    <div class="form-group">
+      <label for="lastName">Phone</label>
+      <input formControlName="phone"
+             class="form-control form-control-sm"
+             type="text" id="phone" placeholder="Enter Phone">
+      <small id="emailHelp" class="form-text"
+             *ngIf="((formGroup.get('phone').touched || formGroup.get('phone').dirty) && formGroup.get('phone').errors?.required)">
+        The field is required.
+      </small>
+    </div>
+
+
+    <button type="button" class="btn mr-2" (click)="goBack()">Cancel</button>
+    <button type="submit" class="btn " [disabled]="!formGroup.valid">Submit</button> <!---->
+  </form>
+  <div class="d-flex justify-content-center" *ngIf="load">
+    <div class="spinner-grow text-info" style="width: 3rem; height: 3rem;" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+</div>
