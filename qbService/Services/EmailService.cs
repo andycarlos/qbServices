@@ -18,24 +18,31 @@ namespace qbService.Services
         }
         public void SendEmail(string userEmail, string Subject, string Body)
         {
-            using (var message = new MailMessage())
+            try
             {
-                message.From = new MailAddress(_configuration["email"], "SkyleaseAccess System");
-                message.To.Add(new MailAddress(userEmail));
-                //message.CC.Add(new MailAddress("cc@email.com", "CC Name"));
-                //message.Bcc.Add(new MailAddress("bcc@email.com", "BCC Name"));
-                message.Subject = Subject;
-                message.IsBodyHtml = true;
-                message.Body = Body;
-
-                using (var client = new SmtpClient("smtp.gmail.com"))
+                using (var message = new MailMessage())
                 {
-                    client.Port = 587;
-                    client.Credentials = new NetworkCredential(_configuration["email"], _configuration["emailPass"]);
-                    client.EnableSsl = true;
+                    message.From = new MailAddress(_configuration["email"], "SkyleaseAccess System");
+                    message.To.Add(new MailAddress(userEmail));
+                    //message.CC.Add(new MailAddress("cc@email.com", "CC Name"));
+                    //message.Bcc.Add(new MailAddress("bcc@email.com", "BCC Name"));
+                    message.Subject = Subject;
+                    message.IsBodyHtml = true;
+                    message.Body = Body;
 
-                    client.Send(message);
+                    using (var client = new SmtpClient("smtp.gmail.com"))
+                    {
+                        client.Port = 587;
+                        client.Credentials = new NetworkCredential(_configuration["email"], _configuration["emailPass"]);
+                        client.EnableSsl = true;
+
+                        client.Send(message);
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
     }

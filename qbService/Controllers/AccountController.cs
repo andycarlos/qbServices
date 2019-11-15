@@ -42,29 +42,33 @@ namespace qbService.Controllers
         }
         [Route("GetAllUser")]
         [HttpGet]
-        [Authorize(Roles = "Admin")]
-        public ActionResult<IEnumerable<object>> GetAllUsers()
+        //[Authorize(Roles = "Admin")]
+        [AllowAnonymous]
+        public  ActionResult<IEnumerable<object>> GetAllUsers()
         {
-            List<UserInfo> users = _context.Users.Select(x => new UserInfo
+            List<UserInfo> users = _userManager.Users.Select(x => new UserInfo
             {
                 Id = x.Id,
                 Email = x.Email,
-                Name = x.CompanyName,
+                CompanyName = x.CompanyName,
                 Phone = x.PhoneNumber,
                 
             }).ToList();
 
             users.ForEach(x => x.Roles = new List<string>());
 
-            var roles = _roleManager.Roles;
-            foreach (var item in roles)
+            var roles = _roleManager.Roles.ToList();
+            foreach (IdentityRole item in roles)
             {
-                IList<ApplicationUser> userTemps = _userManager.GetUsersInRoleAsync(item.Name).Result;
-                users.ForEach(userinfo =>
+                IList<ApplicationUser> userTemps =  _userManager.GetUsersInRoleAsync(item.Name).Result;
+                if (userTemps != null)
                 {
-                    if (userTemps.Any(userTemp => userTemp.Id == userinfo.Id))
-                        userinfo.Roles.Add(item.Name);
-                });
+                    users.ForEach(userinfo =>
+                    {
+                        if (userTemps.Any(userTemp => userTemp.Id == userinfo.Id))
+                            userinfo.Roles.Add(item.Name);
+                    });
+                }
             }
 
             if (users == null)
@@ -77,8 +81,8 @@ namespace qbService.Controllers
         //Use to valid asyn
         [Route("AnyUserByEmail")]
         [HttpGet]
-        [Authorize(Roles = "Admin")]
-        // [AllowAnonymous]
+        //[Authorize(Roles = "Admin")]
+        [AllowAnonymous]
         public ActionResult<bool> GetAnyUserByEmail([FromQuery] string Email)
         {
             var result = _context.Users.Any(x => x.Email == Email);
@@ -88,25 +92,37 @@ namespace qbService.Controllers
         [Route("Create")]
         [HttpPost]
         //[Authorize(Roles = "Admin")]
+        [AllowAnonymous]
         public async Task<IActionResult> CreateUser([FromBody] UserInfo userInfo)
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = userInfo.Email, CompanyName = userInfo.Name, Email = userInfo.Email, PhoneNumber = userInfo.Phone };
-                var result = await _userManager.CreateAsync(user);
-                if (result.Succeeded)
+                try
                 {
-                    await _userManager.AddToRoleAsync(user, "User");
-                    var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                    string callbackUrl = Url.Action(null, null, new { code = code, email = user.Email }, Request.Scheme);
-                    EmailService emailService = new EmailService(_configuration);
-                    string body = "Please clicking here to activate your account: <a href=\"" + callbackUrl.Replace("api/Account/Create", "forgotPassword") + "\">link</a>";
-                    emailService.SendEmail(user.Email, "Activate Account Skyleaeaccess", body);
-                    return Ok();
+                    var user = new ApplicationUser { 
+                        UserName = userInfo.Email,
+                        CompanyName = userInfo.CompanyName, 
+                        Email = userInfo.Email, 
+                        PhoneNumber = userInfo.Phone};
+                    var result = await _userManager.CreateAsync(user,userInfo.Password);
+                    if (result.Succeeded)
+                    {
+                        await _userManager.AddToRoleAsync(user, "User");
+                        var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                        string callbackUrl = Url.Action(null, null, new { code = code, email = user.Email }, Request.Scheme);
+                        EmailService emailService = new EmailService(_configuration);
+                        string body = "Please clicking here to activate your account: <a href=\"" + callbackUrl.Replace("api/Account/Create", "forgotPassword") + "\">link</a>";
+                        emailService.SendEmail(user.Email, "Activate Account Skyleaeaccess", body);
+                        return Ok();
+                    }
+                    else
+                    {
+                        return BadRequest(result.Errors);
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    return BadRequest(ModelState);
+                    return BadRequest(e);
                 }
             }
             else
@@ -358,16 +374,5 @@ namespace qbService.Controllers
 
         }
 
-
-
-        [HttpPost]
-        [Route("Log")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Login()
-        {
-            
-                return Ok("Data error");
-            
-        }
     }
 }

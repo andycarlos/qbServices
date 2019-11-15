@@ -12,7 +12,10 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
+        "root": "holam",
         "Llave_super_secreta": "jiofjewaoijfoiweajfoijwaeoifjweoaijfoajweoifjawoiefjowia;oirhe",
+        "email": "acalfonso@skylease.aero",
+        "emailPass": "andycarlos86",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },

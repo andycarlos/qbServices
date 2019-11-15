@@ -74,11 +74,11 @@ export class UserService {
     return this.http.get<string[]>(this.baseUrl + "/IsAdmin");
   }
 
-  login(loginInfo: ILoginInfo): Observable<any>
+  login(loginInfo: IUser): Observable<any>
   {
     return this.http.post<any>(this.baseUrl + "/Login", loginInfo);
-  }
-  create(loginInfo: ILoginInfo): Observable<any> {
+    }
+  create(loginInfo: IUser): Observable<any> {
     return this.http.post<any>(this.baseUrl + "/Create", loginInfo);
   }
   delect(user: IUser): Observable<IUser> {
@@ -136,10 +136,10 @@ export interface IEmail {
 }
 export interface IUser{
   id: string;
+  companyName: string;
   email: string;
-  name: string;
-  lastname: string;
-  category: string;
+  phone: string;
+  password: string;
   roles: string[];
 }
 export interface IPassWord {
@@ -147,13 +147,6 @@ export interface IPassWord {
   OldPass: string;
   NewPass: string;
 }
-export interface ILoginInfo {
-  name: string;
-  phone: string;
-  email: string;
-  password: string;
-}
-
 export interface IForgotPassword {
   email: string;
   token: string;

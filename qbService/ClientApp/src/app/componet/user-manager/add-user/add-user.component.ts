@@ -3,7 +3,7 @@ import { FormGroup, FormBuilder, FormControl, Validators, AsyncValidatorFn, Vali
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { UserService, ILoginInfo } from '../user.service';
+import { IUser, UserService } from '../../../services/user.service';
 
 @Component({
   selector: 'app-add-user',
@@ -17,7 +17,7 @@ export class AddUserComponent implements OnInit {
         private _router: Router,
         private _userService: UserService) {
         this.formGroup = _fb.group({
-            name: new FormControl('', Validators.required),
+            companyName: new FormControl('', Validators.required),
             email: new FormControl('', [Validators.required], this.emalDuplication()),
             phone: new FormControl('', Validators.required),
         });
@@ -42,12 +42,11 @@ export class AddUserComponent implements OnInit {
     }
     load: boolean = false;
     save() {
-        console.log(this.formGroup.value);
-        let loginInfo = this.formGroup.value as ILoginInfo;
-        loginInfo.password = ""
+        let loginInfo = this.formGroup.value as IUser;
+        loginInfo.password = "holam"
         this.load = true;
         this.formGroup.disable();
-        this._userService.create(loginInfo).subscribe(null, null, () => {
+        this._userService.create(loginInfo).subscribe(null, err => console.log(err), () => {
             this.goBack();
             this.load = false;
         });
