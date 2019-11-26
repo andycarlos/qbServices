@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using qbService.Models;
 
 namespace qbService.Migrations
 {
     [DbContext(typeof(ApplicationDbContex))]
-    partial class ApplicationDbContexModelSnapshot : ModelSnapshot
+    [Migration("20191126212634_migration3AddTarea")]
+    partial class migration3AddTarea
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -234,7 +236,7 @@ namespace qbService.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("FinDate")
+                    b.Property<DateTime>("FinDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Task")

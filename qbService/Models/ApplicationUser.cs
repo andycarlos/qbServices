@@ -9,5 +9,6 @@ namespace qbService.Models
     public class ApplicationUser: IdentityUser
     {
         public string CompanyName { get; set; }
+        public List<Tarea> Tareas { get; set; }
     }
 }

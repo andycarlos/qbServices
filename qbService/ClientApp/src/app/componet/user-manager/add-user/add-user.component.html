@@ -1,5 +1,5 @@
 <div class="container">
-  <h1>New User</h1><!--*ngIf='!editMode'-->
+  <h1>{{(!userID)?'New User':'Edit User'}}</h1><!--*ngIf='!editMode'-->
   <!--<h1 *ngIf='editMode'>Edit Section</h1>-->
   <hr>
   <form novalidate [formGroup]="formGroup" (ngSubmit)="save()">
@@ -46,10 +46,14 @@
       <label for="lastName">Phone</label>
       <input formControlName="phone"
              class="form-control form-control-sm"
-             type="text" id="phone" placeholder="Enter Phone">
+             type="text" id="phone" placeholder="Enter Phone" (keypress)="keyPress($event)">
       <small id="emailHelp" class="form-text"
              *ngIf="((formGroup.get('phone').touched || formGroup.get('phone').dirty) && formGroup.get('phone').errors?.required)">
         The field is required.
+      </small>
+      <small id="emailHelp" class="form-text"
+             *ngIf="((formGroup.get('phone').touched || formGroup.get('phone').dirty) && formGroup.get('phone').errors?.pattern)">
+        Phone number Invalid.
       </small>
     </div>
 
@@ -63,3 +67,4 @@
     </div>
   </div>
 </div>
+

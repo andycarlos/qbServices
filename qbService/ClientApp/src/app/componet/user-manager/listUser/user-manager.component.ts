@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IUser, IRole, UserService } from '../../../services/user.service';
+import { IUser, IRole } from '../../../services/user.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { RolUserComponent } from '../rol-user/rol-user.component';
+import { UserManagerService } from '../user-manager.service';
 
 @Component({
   selector: 'app-user-manager',
@@ -19,8 +22,9 @@ export class UserManagerComponent implements OnInit {
     pageSize: number = 10;
     page: number = 1;
 
-    constructor(private _userService: UserService,
-        private _router: Router) { }
+    constructor(private _userService: UserManagerService,
+        private _router: Router,
+        private modalService: NgbModal) { }
 
     ngOnInit() {
         this.load = true;
@@ -78,6 +82,20 @@ export class UserManagerComponent implements OnInit {
             this.ordenAsed = "";
         }
 
+    }
+
+    editRolUser(user: IUser) {
+        const modalRef = this.modalService.open(RolUserComponent);
+        modalRef.componentInstance.name = user.email;
+        modalRef.componentInstance.userSelect = user;
+    }
+    blockUser(user: IUser, event: boolean) {
+        user.block = event;
+        this._userService.blockUser(user).subscribe();
+    }
+
+    editUser(user: IUser) {
+        this._router.navigate(['/user/edit', user.id])
     }
 
 }

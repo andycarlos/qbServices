@@ -44,23 +44,23 @@ export class LoginComponent implements OnInit {
                 this._userService.userEmail = loginInfo.email;
                 this._userService.tokenUserExpiration = x.expiration;
                 this._userService.token = x.token;
-                localStorage.setItem("SkyUser", loginInfo.email);
-                localStorage.setItem("Skypass", loginInfo.password);///
+                localStorage.setItem("User", loginInfo.email);
+                localStorage.setItem("Pass", loginInfo.password);///
 
                 this._userService.access(x.roles);
                 this._userService.loginNow = true;
 
-                if (this._userService.rolUser || this._userService.rolAdmin) {
-                    this._router.navigate(['/home']);
-                    return;
-                }
+                //if (this._userService.rolUser || this._userService.rolAdmin) {
+                //    this._router.navigate(['/home']);
+                //    return;
+                //}
 
-                if (this._userService.rolFileAdd || this._userService.rolFileDel || this._userService.rolFileDownload) {
-                    this._router.navigate(['/files']);
-                    return;
-                }
+                //if (this._userService.rolFileAdd || this._userService.rolFileDel || this._userService.rolFileDownload) {
+                //    this._router.navigate(['/files']);
+                //    return;
+                //}
 
-                this._router.navigate(['/about']);
+                this._router.navigate(['/home']);
             }
             else {
                 this.error = x;
@@ -68,6 +68,15 @@ export class LoginComponent implements OnInit {
         });
     }
     ngOnInit() {
+        this._route.queryParams.subscribe(paras => {
+            let email = (paras['email']) ? paras['email'] : localStorage.getItem("User");
+            let pass = localStorage.getItem("Pass");///
+
+            if (email)
+                this.formGroup.get('email').setValue(email);
+            if (pass)
+                this.formGroup.get('password').setValue(pass);///
+        });
     }
 
 }

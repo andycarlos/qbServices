@@ -1,20 +1,38 @@
 <nav class="navbar navbar-expand-lg navbar-dark ">
-  <a class="navbar-brand" href="#">QB Services</a>
+  <a class="navbar-brand" [routerLink]="['/home']">QB Services</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item " [routerLinkActive]="['active']">
-        <a class="nav-link" [routerLink]="['/login']">Login</a>
+      <li class="nav-item"  [routerLinkActive]="['active']">
+        <a class="nav-link" [routerLink]="['/home']">Home</a>
       </li>
-      <li class="nav-item" [routerLinkActive]="['active']">
-        <a class="nav-link" [routerLink]="['/user']">List User</a>
-      </li>
-      <li class="nav-item" [routerLinkActive]="['active']">
-        <a class="nav-link" [routerLink]="['/user/add']">Add User</a>
+      <li class="nav-item" *ngIf="_userService.loginNow && _userService.rolAdmin" [routerLinkActive]="['active']">
+        <a class="nav-link" [routerLink]="['/user']">Users Manager</a>
       </li>
     </ul>
+
+    <div *ngIf="_userService.loginNow " class="btn-group">
+      <button type="button" class="btn btn-info dw" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {{(_userService.loginNow!='')?_userService.userEmail.substr(0,1).toUpperCase():'Sign in'}}
+      </button>
+      <div class="dropdown-menu dropdown-menu-left dropdown-menu-lg-right ">
+        <div class="container">
+          <div class="mx-auto" style="text-align: center;">
+            <h6>acalfonso86@gmail.com</h6>
+            <button type="submit" class="btn btn-primary btn-sm" (click)="singOut()" [routerLink]="['/home']">Sign out</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div *ngIf="!_userService.loginNow" class="btn-group">
+      <button type="button" class="btn btn-info dw" [routerLink]="['/login']" >
+        {{(_userService.loginNow!='')?_userService.userEmail.substr(0,1).toUpperCase():'Sign in'}}
+      </button>
+    </div>
+
   </div>
 </nav>

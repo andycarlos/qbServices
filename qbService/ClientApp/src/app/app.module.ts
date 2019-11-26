@@ -7,25 +7,30 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './componet/login/login.component';
 import { NavbarComponent } from './componet/navbar/navbar.component';
-import { HttpClientModule } from '@angular/common/http';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
-
+import { InterceptorHttpService } from './services/interceptor-http.service';
+import { HomeComponent } from './componet/home/home.component';
+//ng bootstrap
+//import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 @NgModule({
     declarations: [
         AppComponent,
         LoginComponent,
         NavbarComponent,
+        HomeComponent,
     ],
     imports: [
         BrowserModule,
         //UserModule,
-        AppRoutingModule,
         HttpClientModule,
-        NgbModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        
+        AppRoutingModule,
+       // NgbModule,
     ],
-    providers: [],
+    providers: [
+        { provide: HTTP_INTERCEPTORS, useClass: InterceptorHttpService, multi: true }],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

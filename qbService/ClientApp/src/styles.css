@@ -4,12 +4,34 @@ body {
   background-color: #4b4b4b;
 }
 
-button {
-  background: rgb(25, 49, 73) !important;
-  color: white !important;
+
+
+ngb-pagination > ul > li > a {
+  background-color: rgb(25, 49, 73) !important;
+  color: #fff!important;
+  border-color: rgb(17, 122, 139) !important;
 }
 
-  button:hover {
+  ngb-pagination > ul > li > a:focus,
+  ngb-pagination > ul > li > a:hover,
+  ngb-pagination > ul > li > span:focus,
+  ngb-pagination > ul > li > span:hover {
+    /*color: white;*/
     background: rgb(34, 65, 98) !important;
-    color: white !important;
+    /*border-color: #454d55;*/
   }
+ngb-pagination > ul > li.page-item.active > a {
+  background: rgb(34, 65, 98)!important ;
+}
+ngb-pagination > ul > li.page-item.disabled > a {
+  color: #6c757d !important;
+}
+.page-link:focus {
+  box-shadow: none;
+}
+.dw {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 36px !important;
+  border-radius: 2.25rem;
+}
+

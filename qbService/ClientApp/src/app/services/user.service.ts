@@ -18,7 +18,7 @@ export class UserService {
   tokenUserExpiration: string='';
   loginNow: boolean = false;
   roles: string[] = [];
-  userEmail: string; //for navbar
+  userEmail: string = ''; //for navbar
 
   //
   rolAdmin: boolean = false;
@@ -50,19 +50,6 @@ export class UserService {
   }
 
   //Get all Users
-  getAllUser(): Observable<IUser[]> {
-    return this.http.get<IUser[]>(this.baseUrl + "/GetAllUser");
-  }
-  AnyUserByEmail(email: string): Observable<boolean> {
-    let param = new HttpParams().set("Email", email);
-    return this.http.get<boolean>(this.baseUrl + "/AnyUserByEmail", { params: param });
-  }
-
-  setPassWord(passInfo: IPassWord): Observable<any>
-  {
-    return this.http.post(this.baseUrl + "/SetPassword", passInfo);
-  }
-
   forgotPassword(Email: IEmail): Observable<any> {
     return this.http.post(this.baseUrl + "/ForgotPassword", Email);
   }
@@ -70,44 +57,15 @@ export class UserService {
     return this.http.post(this.baseUrl + "/ForgotPasswordValid", ForgotPassword);
   }
 
-  isAdmin(): Observable<string[]> {
-    return this.http.get<string[]>(this.baseUrl + "/IsAdmin");
-  }
-
   login(loginInfo: IUser): Observable<any>
   {
     return this.http.post<any>(this.baseUrl + "/Login", loginInfo);
     }
-  create(loginInfo: IUser): Observable<any> {
-    return this.http.post<any>(this.baseUrl + "/Create", loginInfo);
-  }
-  delect(user: IUser): Observable<IUser> {
-    return this.http.post<IUser>(this.baseUrl + "/Remove", user);
-  }
-
-  obtenerToken(): string{
-    return this.token;
-  }
-  obtenerTokenExpriacion(): string {
-    return this.tokenUserExpiration;
-  }
-
-  GetListRoles(): Observable<IRole[]> {
-    return this.http.get<IRole[]>(this.baseUrl + "/GetAllRoles");
-  }
-  AddRolByUser(user: IUser, rol: IRole) {
-    return this.http.put(this.baseUrl + "/AddRolByUser/" + user.id, rol);
-  }
-  RemoveRolByUser(user: IUser, rol: IRole) {
-    return this.http.put(this.baseUrl + "/RemoveRolByUser/" + user.id, rol);
-  }
-
   logout() {
     this.token = '';
     this.tokenUserExpiration = '';
     this.loginNow = false;
   }
-  
   isLogin(): boolean {
 
     let exp = this.tokenUserExpiration;
@@ -128,6 +86,13 @@ export class UserService {
       return true;
     }
   }
+
+  obtenerToken(): string{
+    return this.token;
+  }
+  obtenerTokenExpriacion(): string {
+    return this.tokenUserExpiration;
+  }
 }
 
 
@@ -141,6 +106,7 @@ export interface IUser{
   phone: string;
   password: string;
   roles: string[];
+  block: boolean;
 }
 export interface IPassWord {
   id: string;

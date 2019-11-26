@@ -24,7 +24,9 @@
               <th scope="col" (click)="ordenByUser('email')">{{ordernEmail}} Email</th>
               <th scope="col" (click)="ordenByUser('companyName')">{{ordernCompanyName}} Company Name</th>
               <th scope="col" (click)="ordenByUser('phone')">{{ordernPhone}} Phone</th>
-              <th scope="col">Roles</th>
+              <th scope="col">Permissions</th>
+              <th scope="col">State</th>
+              <th scope="col">Options</th>
             </tr>
           </thead>
           <tbody>
@@ -39,9 +41,18 @@
               </td>
               <td>
                 <button class="btn btn-info btn-sm mr-2" (click)="editRolUser(user)" data-toggle="modal" data-target="#ModalRoles">{{user.roles.join(", ")}}</button>
-                <div class="float-right">
-                  <button class="btn btn-success btn-sm mr-2" (click)="editPasswordUser(user)" data-toggle="modal" data-target="#ModalPass">Change Password</button>
-                  <button class="btn btn-danger btn-sm" (click)="delect(user)" data-toggle="modal" data-target="#exampleModal">Delete</button>
+              </td>
+              <td>
+                <div *ngIf="user.email!='root@skylease.aero'" class="custom-control custom-switch">
+                  <input type="checkbox" class="custom-control-input" [checked]="user.block" [id]="'customSwitch'+i" (change)="blockUser(user,$event.target.checked)">
+                  <label class="custom-control-label" [for]="'customSwitch'+i">{{(user.block)?'Enable':'Disable'}}</label>
+                </div>
+              </td>
+              <td>
+                <div>
+                  <button class="btn btn-success btn-sm mr-2" ngbTooltip="Edit User" (click)="editUser(user)" data-toggle="modal" data-target="#ModalPass"><i class="fas fa-user-edit"></i></button>
+                  <button class="btn btn-success btn-sm mr-2" ngbTooltip="Change Password" (click)="editPasswordUser(user)" data-toggle="modal" data-target="#ModalPass"><i class="fas fa-key"></i></button>
+                  <button class="btn btn-danger btn-sm" ngbTooltip="Delete User"(click)="delect(user)" data-toggle="modal" data-target="#exampleModal"><i class="fas fa-user-slash"></i></button>
                 </div>
               </td>
             </tr>
@@ -57,8 +68,9 @@
       </div>
     </div>
   </div>
+</div>
 
-  <div *ngIf="isDelectUser" class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <!--<div *ngIf="isDelectUser" class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -77,7 +89,7 @@
       </div>
     </div>
   </div>
-</div>
+</div>-->
 
  <!--Modal Password 
 <div *ngIf="editPassword" class="modal fade" id="ModalPass" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

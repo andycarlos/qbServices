@@ -8,3 +8,13 @@ h1 {
 th {
   background: rgb(25, 49, 73) !important;
 }
+
+button {
+  background: rgb(25, 49, 73) !important;
+  color: white !important;
+}
+
+  button:hover {
+    background: rgb(34, 65, 98) !important;
+    color: white !important;
+  }

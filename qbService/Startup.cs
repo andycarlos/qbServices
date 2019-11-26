@@ -31,7 +31,7 @@ namespace qbService
         public void ConfigureServices(IServiceCollection services)
         {
 
-           //services.AddSignalR();
+           services.AddSignalR();
            services.AddControllers();
            services.AddDbContext<ApplicationDbContex>(option =>
            option.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
@@ -126,18 +126,17 @@ namespace qbService
 
             app.UseEndpoints(endpoints =>
             {
-                //endpoints.MapHub<ServiceHub>("/servicehub");
+                endpoints.MapHub<ServiceHub>("/servicehub");
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
             });
-
             app.UseSpa(spa =>
             {
                 // To learn more about options for serving an Angular SPA from ASP.NET Core,
                 // see https://go.microsoft.com/fwlink/?linkid=864501
                 spa.Options.SourcePath = "ClientApp";
-
+                
                 if (env.IsDevelopment())
                 {
                     spa.UseAngularCliServer(npmScript: "start");

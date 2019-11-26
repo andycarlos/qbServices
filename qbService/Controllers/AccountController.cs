@@ -42,8 +42,7 @@ namespace qbService.Controllers
         }
         [Route("GetAllUser")]
         [HttpGet]
-        //[Authorize(Roles = "Admin")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         public  ActionResult<IEnumerable<object>> GetAllUsers()
         {
             List<UserInfo> users = _userManager.Users.Select(x => new UserInfo
@@ -52,8 +51,12 @@ namespace qbService.Controllers
                 Email = x.Email,
                 CompanyName = x.CompanyName,
                 Phone = x.PhoneNumber,
-                
+                Block = (x.LockoutEnd.ToString()!=null) ? false : true
             }).ToList();
+            if (users.Count == 0)
+            {
+                return Ok();
+            }
 
             users.ForEach(x => x.Roles = new List<string>());
 
@@ -70,19 +73,72 @@ namespace qbService.Controllers
                     });
                 }
             }
+            return users;
+        }
+        [Route("GetUserByID")]
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public ActionResult<object> GetUsersByID([FromBody]string id)
+        {
+            if (id == null)
+                return BadRequest("ID Null");
+            List<UserInfo> users = _userManager.Users.Where(x=>x.Id== id).Select(x => new UserInfo
+            {
+                Id = x.Id,
+                Email = x.Email,
+                CompanyName = x.CompanyName,
+                Phone = x.PhoneNumber,
+                Block = (x.LockoutEnd.ToString() != null) ? false : true
+            }).ToList();
 
-            if (users == null)
+            if (users.Count == 0)
             {
                 return Ok();
             }
-            return users;
+            users.ForEach(x => x.Roles = new List<string>());
+
+            var roles = _roleManager.Roles.ToList();
+            foreach (IdentityRole item in roles)
+            {
+                IList<ApplicationUser> userTemps = _userManager.GetUsersInRoleAsync(item.Name).Result;
+                if (userTemps != null)
+                {
+                    users.ForEach(userinfo =>
+                    {
+                        if (userTemps.Any(userTemp => userTemp.Id == userinfo.Id))
+                            userinfo.Roles.Add(item.Name);
+                    });
+                }
+            }
+            return users[0];
+        }
+
+        [Route("UpdateUser")]
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public ActionResult UpdateUser([FromBody] UserInfo userInfo)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var user = _context.Users.Find(userInfo.Id);
+            user.Email = userInfo.Email;
+            user.NormalizedEmail = userInfo.Email;
+            user.UserName = userInfo.Email;
+            user.NormalizedUserName = userInfo.Email;
+            user.CompanyName = userInfo.CompanyName;
+            user.PhoneNumber = userInfo.Phone;
+            //_context.Users.Attach(user).Property(x=> x.Email)
+            _context.SaveChanges();
+            return Ok();
         }
 
         //Use to valid asyn
         [Route("AnyUserByEmail")]
         [HttpGet]
-        //[Authorize(Roles = "Admin")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
+        //[AllowAnonymous]
         public ActionResult<bool> GetAnyUserByEmail([FromQuery] string Email)
         {
             var result = _context.Users.Any(x => x.Email == Email);
@@ -91,8 +147,8 @@ namespace qbService.Controllers
 
         [Route("Create")]
         [HttpPost]
-        //[Authorize(Roles = "Admin")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
+        //[AllowAnonymous]
         public async Task<IActionResult> CreateUser([FromBody] UserInfo userInfo)
         {
             if (ModelState.IsValid)
@@ -159,19 +215,20 @@ namespace qbService.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("IsAdmin")]
-        public async Task<ActionResult<List<string>>> IsAdmin()
-        {
-            var email = User.Claims.ToList().FirstOrDefault(x => x.Type == "UserName").Value.ToLower();
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-                return BadRequest("User not found.");
-            var resul = await _userManager.GetRolesAsync(user);
-            return Ok(resul);
-        }
+        //[HttpGet]
+        //[Route("IsAdmin")]
+        //public async Task<ActionResult<List<string>>> IsAdmin()
+        //{
+        //    var email = User.Claims.ToList().FirstOrDefault(x => x.Type == "UserName").Value.ToLower();
+        //    var user = await _userManager.FindByEmailAsync(email);
+        //    if (user == null)
+        //        return BadRequest("User not found.");
+        //    var resul = await _userManager.GetRolesAsync(user);
+        //    return Ok(resul);
+        //}
 
         // POST api/Account/SetPasswor
+
         [HttpPost]
         [Route("SetPassword")]
         [Authorize(Roles = "Admin")]
@@ -210,6 +267,7 @@ namespace qbService.Controllers
         [HttpGet]
         [Route("GetAllRoles")]
         [Authorize(Roles = "Admin")]
+        //[AllowAnonymous]
         public ActionResult GetAllRol()
         {
             return Ok(_roleManager.Roles.ToList());
@@ -218,6 +276,7 @@ namespace qbService.Controllers
         [HttpPut]
         [Route("AddRolByUser/{id}")]
         [Authorize(Roles = "Admin")]
+        //[AllowAnonymous]
         public async Task<ActionResult> AddRolByUser(string id, [FromBody] IdentityRole role)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -232,6 +291,7 @@ namespace qbService.Controllers
         [HttpPut]
         [Route("RemoveRolByUser/{id}")]
         [Authorize(Roles = "Admin")]
+        //[AllowAnonymous]
         public async Task<ActionResult> RemoveRolByUser(string id, [FromBody] IdentityRole role)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -241,6 +301,40 @@ namespace qbService.Controllers
             if (!resul.Result.Succeeded)
                 return Ok("Rol problem.");
             return Ok();
+        }
+
+        [Route("Block")]
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        //[AllowAnonymous]
+        public async Task<IActionResult> BlockUser([FromBody] UserInfo userInfo)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var user = await _userManager.FindByEmailAsync(userInfo.Email);
+                    if (!userInfo.Block)
+                    {
+                        DateTimeOffset date = DateTimeOffset.Now;
+                        date = date.AddYears(10);
+                        await _userManager.SetLockoutEndDateAsync(user, date);
+                    }
+                    else
+                    {
+                        await _userManager.SetLockoutEndDateAsync(user, null);
+                    }
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    return BadRequest(e);
+                }
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
 
         //-------AllowAnonymous 
@@ -258,11 +352,10 @@ namespace qbService.Controllers
                         UserName = _root,
                         CompanyName = "Root",
                         Email = _root,
-                        PhoneNumber = null
+                        PhoneNumber = "0"
                     };
                     await _userManager.CreateAsync(root, _configuration["root"]);
                     await _userManager.AddToRoleAsync(root, "Admin");
-                    await _userManager.AddToRoleAsync(root, "User");
                 }
 
                 var user = await _userManager.FindByEmailAsync(userInfo.Email);
@@ -270,7 +363,14 @@ namespace qbService.Controllers
                 {
                     return Ok("User no valid");
                 }
+                //string a = user.LockoutEnd.ToString();
+                //await _userManager.SetLockoutEnabledAsync(user, true);
+                //await _userManager.SetLockoutEndDateAsync(user,null);
                 var result = await _signInManager.PasswordSignInAsync(user, userInfo.Password, isPersistent: false, lockoutOnFailure: false);
+                if (result.IsLockedOut)
+                {
+                    return Ok("The User is BLOCK");
+                }
                 if (result.Succeeded)
                 {
                     var rol = await _userManager.GetRolesAsync(user);
