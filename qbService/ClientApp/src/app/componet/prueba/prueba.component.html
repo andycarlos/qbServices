@@ -1,0 +1,69 @@
+<div class="container">
+  <h1 style="color:white">Invoce By Customers</h1>
+  <hr>
+  <div class="row">
+    <div class="col-6">
+      <div class="form-group ">
+        <label for="category" style="display:block;">Customer</label>
+        <select [(ngModel)]="customer"
+                (change)="onChange()"
+                class="form-control form-control-sm"
+                type="text" id="customer" placeholder="Customer"
+                style="display:inline-block; width:88%">
+          <option *ngFor="let item of customers" [value]="item.listID">{{item.fullName}}</option>
+        </select>
+        <div *ngIf="loadCustomer" class="spinner-border text-info" role="status" style="width:1rem; height:1rem;">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-center">
+    <div *ngIf="loadInvoces" class="spinner-border text-info" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="invoces.length!=0" class="row">
+    <div class="col">
+      <div class="table-responsive">
+        <table class="table table-hover table-dark table-sm">
+          <thead>
+            <tr>
+              <th scope="col">NUM</th>
+              <th scope="col">DATE</th>
+              <th scope="col">DUE DATE</th>
+              <th scope="col">AMOUNT</th>
+              <th scope="col">OPEN BALANCE</th>
+              <!--<th scope="col">PAID</th>-->
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of invoces;">
+              <ng-container *ngIf="!item.isPaid">
+                <td scope="row">{{item.refNumber}}</td>
+                <td>{{item.txnDate|date}}</td>
+                <td>{{item.dueDate|date}}</td>
+                <td>{{item.subtotal}}</td>
+                <td>{{item.balanceRemaining}}</td>
+                <!--<td>{{(item.isPaid)?'Yes':'No'}}</td>-->
+              </ng-container>
+            </tr>
+            
+            <tr>
+                <td colspan="3" style="border-top-color:white"><b>TOTAL</b></td>
+                <td style="border-top-color:white"><b>{{amoutTotal}}</b></td>
+                <td style="border-top-color:white"><b>{{balanceTotal}}</b></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!--<div class="d-flex justify-content-center" *ngIf="load">
+    <div class="spinner-grow text-info" style="width: 3rem; height: 3rem;" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>-->
+    </div>
+  </div>
+</div>

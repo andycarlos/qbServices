@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using qbService.Hubs;
+using Microsoft.AspNetCore.Http;
 
 //using AspNetCore3JWT.Data;
 
@@ -31,13 +32,11 @@ namespace qbService
         public void ConfigureServices(IServiceCollection services)
         {
 
-           services.AddSignalR();
            services.AddControllers();
            services.AddDbContext<ApplicationDbContex>(option =>
            option.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
-
-
-            services.AddMvc();
+           services.AddMvc();
+           services.AddSignalR();
 
 
             //add config Usuarios
@@ -109,6 +108,9 @@ namespace qbService
             app.UseStaticFiles();
             app.UseAuthentication();
             app.UseAuthorization();
+
+            //MyHttpContext.Configure(app.ApplicationServices.GetRequiredService<IHttpContextAccessor>());
+            //app.UseHttpContext();
             if (!_roleManager.RoleExistsAsync("Admin").Result)
             {
                 var role = new IdentityRole("Admin");
@@ -126,10 +128,10 @@ namespace qbService
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<ServiceHub>("/servicehub");
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
+                endpoints.MapHub<ServiceHub>("/servicehub");
             });
             app.UseSpa(spa =>
             {

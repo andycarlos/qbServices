@@ -13,7 +13,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using qbService.Models;
 using qbService.Services;
-
 namespace qbService.Controllers
 {
     [Produces("application/json")]
@@ -386,7 +385,7 @@ namespace qbService.Controllers
                 return Ok("Data error");
             }
         }
-
+        
         [HttpPost]
         [Route("ForgotPassword")]
         [AllowAnonymous]

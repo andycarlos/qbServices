@@ -10,7 +10,7 @@ export class AuthGuardService implements CanActivate {
   constructor(private _userService: UserService,
     private router: Router) { }
     rolNull: string[] = ["/home","/login","/about"];
-    rolUser: string[] = ["/home"];
+    rolUser: string[] = ["/home","/prueba"];
   //rolFileAdd: string[] = ["/files"];
   //rolFileDel: string[] = ["/files"];
   //rolFileDownload: string[] = ["/files"];

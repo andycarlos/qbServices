@@ -8,9 +8,10 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './componet/login/login.component';
 import { NavbarComponent } from './componet/navbar/navbar.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { InterceptorHttpService } from './services/interceptor-http.service';
 import { HomeComponent } from './componet/home/home.component';
+import { PruebaComponent } from './componet/prueba/prueba.component';
 //ng bootstrap
 //import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 @NgModule({
@@ -19,13 +20,14 @@ import { HomeComponent } from './componet/home/home.component';
         LoginComponent,
         NavbarComponent,
         HomeComponent,
+        PruebaComponent,
     ],
     imports: [
         BrowserModule,
         //UserModule,
         HttpClientModule,
         ReactiveFormsModule,
-        
+        FormsModule,
         AppRoutingModule,
        // NgbModule,
     ],
