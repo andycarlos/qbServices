@@ -1,20 +1,60 @@
-<nav class="navbar navbar-expand-lg navbar-dark ">
-  <a class="navbar-brand" [routerLink]="['/home']">QB Services</a>
+<nav class="navbar navbar-expand-lg navbar-dark navbar-hover">
+  <a class="navbar-brand" [routerLink]="['/home']">
+    <img src="../assets/quickbooks-logo.png" width="32" height="32"  alt=""> QuickBooks
+  </a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
+
       <li class="nav-item" [routerLinkActive]="['active']">
-        <a class="nav-link" [routerLink]="['/home']">Home</a>
+        <a class="nav-link" [routerLink]="['/home']"><i class="fas fa-home"></i> Home</a>
       </li>
-      <li class="nav-item" *ngIf="_userService.loginNow && _userService.rolUser" [routerLinkActive]="['active']">
-        <a class="nav-link" [routerLink]="['/prueba']">Prueba</a>
+
+      <li class="nav-item dropdown" *ngIf="_userService.loginNow && (_userService.rolAdmin || _userService.rolUser)" [routerLinkActive]="['active']">
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-user"></i> Customers
+        </a>
+        <ul class="dropdown-menu">
+
+          <li *ngIf="_userService.loginNow && (_userService.rolAdmin || _userService.rolUser)">
+            <a class="dropdown-item" [routerLink]="['/saleorder']"><i class="fas fa-plus"></i> Create Sale Order</a>
+          </li>
+          <li *ngIf="_userService.loginNow && (_userService.rolAdmin || _userService.rolUser)">
+            <a class="dropdown-item" [routerLink]="['/saleorder/config']"><i class="fas fa-cog"></i> Config Sale Order</a>
+          </li>
+
+          <li class="dropdown-divider"></li>
+
+          <li><a class="dropdown-item">Invoce</a></li>
+
+          <!--<li>
+    <a class="dropdown-item dropdown-toggle">Sale Order</a>
+    <ul class="dropdown-menu">
+      <li><a class="dropdown-item"><i class="fas fa-plus"></i> Create Sale Order</a></li>
+      <li><a class="dropdown-item"><i class="fas fa-cog"></i> Config Sale Order</a></li>
+    </ul>
+  </li>
+
+  <li class="dropdown-divider"></li>
+
+  <li><a class="dropdown-item">Invoce</a></li>-->
+
+        </ul>
       </li>
+      <!--<li class="nav-item" *ngIf="_userService.loginNow && (_userService.rolAdmin || _userService.rolUser)" [routerLinkActive]="['active']">
+        <a class="nav-link" [routerLink]="['/saleorder']">Create Sale Order</a>
+      </li>
+      <li class="nav-item" *ngIf="_userService.loginNow && (_userService.rolAdmin || _userService.rolUser)" [routerLinkActive]="['active']">
+        <a class="nav-link" [routerLink]="['/saleorder/config']">Config Sale Order</a>
+      </li>-->
       <li class="nav-item" *ngIf="_userService.loginNow && _userService.rolAdmin" [routerLinkActive]="['active']">
-        <a class="nav-link" [routerLink]="['/user']">Users Manager</a>
+        <a class="nav-link" [routerLink]="['/user']"><i class="fas fa-users-cog"></i> Users Manager</a>
       </li>
+
+
     </ul>
 
     <div *ngIf="_userService.loginNow " class="btn-group">
@@ -24,7 +64,7 @@
       <div class="dropdown-menu dropdown-menu-left dropdown-menu-lg-right ">
         <div class="container">
           <div class="mx-auto" style="text-align: center;">
-            <h6>acalfonso86@gmail.com</h6>
+            <h6>{{_userService.userEmail}}</h6>
             <button type="submit" class="btn btn-primary btn-sm" (click)="singOut()" [routerLink]="['/home']">Sign out</button>
           </div>
         </div>

@@ -108,11 +108,6 @@ export interface IUser{
   roles: string[];
   block: boolean;
 }
-export interface IPassWord {
-  id: string;
-  OldPass: string;
-  NewPass: string;
-}
 export interface IForgotPassword {
   email: string;
   token: string;

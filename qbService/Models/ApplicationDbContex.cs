@@ -20,10 +20,13 @@ namespace qbService.Models
             modelBuilder.Entity<ApplicationUser>()
                 .HasMany(x => x.Tareas)
                 .WithOne(x => x.ApplicationUser);
+                
             base.OnModelCreating(modelBuilder);
         }
 
         public DbSet<qbService.Models.Tarea> Tareas { get; set; }
+
+        public DbSet<qbService.Models.SaleOrderConfigModel> SaleOrderConfigModel { get; set; }
 
     }
 }

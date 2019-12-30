@@ -11,7 +11,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { InterceptorHttpService } from './services/interceptor-http.service';
 import { HomeComponent } from './componet/home/home.component';
-import { PruebaComponent } from './componet/prueba/prueba.component';
+import { ConfimationComponent } from './modalview/confimation/confimation.component';
 //ng bootstrap
 //import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 @NgModule({
@@ -20,19 +20,19 @@ import { PruebaComponent } from './componet/prueba/prueba.component';
         LoginComponent,
         NavbarComponent,
         HomeComponent,
-        PruebaComponent,
+        ConfimationComponent,
     ],
     imports: [
         BrowserModule,
-        //UserModule,
         HttpClientModule,
         ReactiveFormsModule,
-        FormsModule,
         AppRoutingModule,
-       // NgbModule,
+        FormsModule,
+        //NgbModule,
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: InterceptorHttpService, multi: true }],
+    entryComponents: [ConfimationComponent],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,0 +1,41 @@
+<div class="container mt-3">
+  <form novalidate [formGroup]="formGroup" (ngSubmit)="save()">
+    <div class="card-columns">
+
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Total of Invoices with Due Date</h5>
+          <p class="card-text">Number of maximum invoices that you may have due to block the creation of the Sale Order. Zero disables this rule.</p>
+          <div class="form-group text-center">
+            <input formControlName="invocesDueDate"
+                   type="number" class="form-control" placeholder="number">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Days Next's of Invoices with Due Date</h5>
+          <p class="card-text">Total de días despues que una factura se encuentra vencida, this situation block the creation of the Sale Order. Zero disables this rule.</p>
+          <div class="form-group text-center">
+            <input formControlName="daysNextDueDate"
+                   type="number" class="form-control" placeholder="number">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Credit Limit</h5>
+          <p class="card-text">Use the credit limit by QuickBooks customers to block the creation of Sale Order.</p>
+          <div class="custom-control custom-checkbox">
+            <input formControlName="creditLimit"
+                   type="checkbox" class="custom-control-input" id="customCheck1">
+            <label class="custom-control-label" for="customCheck1">Activate credit limit</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button type="submit" class="btn  btn-info mt-2" [disabled]="!formGroup.valid">Save</button>
+  </form>
+</div>

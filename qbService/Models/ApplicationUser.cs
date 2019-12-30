@@ -10,5 +10,6 @@ namespace qbService.Models
     {
         public string CompanyName { get; set; }
         public List<Tarea> Tareas { get; set; }
+        public SaleOrderConfigModel SaleOrderConfigModel { get; set; }
     }
 }

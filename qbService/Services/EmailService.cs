@@ -16,7 +16,7 @@ namespace qbService.Services
         {
             this._configuration = configuration;
         }
-        public void SendEmail(string userEmail, string Subject, string Body)
+        public void SendEmailSystem(string userEmail, string Subject, string Body)
         {
             try
             {

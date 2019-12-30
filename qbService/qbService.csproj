@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -38,6 +38,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20191227202902_deleteCascade.cs" />
+    <Compile Remove="Migrations\20191227202902_deleteCascade.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="ClientApp\dist\3rdpartylicenses.txt" />
     <None Remove="ClientApp\dist\favicon.ico" />
     <None Remove="ClientApp\dist\index.html" />
@@ -48,10 +53,12 @@
     <None Remove="ClientApp\dist\runtime-es2015.858f8dd898b75fe86926.js" />
     <None Remove="ClientApp\dist\runtime-es5.741402d1d47331ce975c.js" />
     <None Remove="ClientApp\dist\styles.56ac69e1f40c9886394f.css" />
-    <None Remove="ClientApp\src\app\componet\user-manager\user-manager.component.spec.ts" />
+    <None Remove="ClientApp\src\app\componet\userManagerM\user-manager.component.spec.ts" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ClientApp\src\app\componet\saleOrderM\modalView\" />
+    <Folder Include="ClientApp\src\app\modalView\" />
     <Folder Include="ClientApp\src\app\pipe\" />
   </ItemGroup>
 

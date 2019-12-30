@@ -122,14 +122,17 @@ namespace qbService.Controllers
                 return BadRequest(ModelState);
             }
             var user = _context.Users.Find(userInfo.Id);
-            user.Email = userInfo.Email;
-            user.NormalizedEmail = userInfo.Email;
-            user.UserName = userInfo.Email;
-            user.NormalizedUserName = userInfo.Email;
-            user.CompanyName = userInfo.CompanyName;
-            user.PhoneNumber = userInfo.Phone;
-            //_context.Users.Attach(user).Property(x=> x.Email)
-            _context.SaveChanges();
+            if (user != null)
+            {
+                user.Email = userInfo.Email;
+                user.NormalizedEmail = userInfo.Email;
+                user.UserName = userInfo.Email;
+                user.NormalizedUserName = userInfo.Email;
+                user.CompanyName = userInfo.CompanyName;
+                user.PhoneNumber = userInfo.Phone;
+                //_context.Users.Attach(user).Property(x=> x.Email)
+                _context.SaveChanges();
+            }
             return Ok();
         }
 
@@ -167,7 +170,7 @@ namespace qbService.Controllers
                         string callbackUrl = Url.Action(null, null, new { code = code, email = user.Email }, Request.Scheme);
                         EmailService emailService = new EmailService(_configuration);
                         string body = "Please clicking here to activate your account: <a href=\"" + callbackUrl.Replace("api/Account/Create", "forgotPassword") + "\">link</a>";
-                        emailService.SendEmail(user.Email, "Activate Account Skyleaeaccess", body);
+                        emailService.SendEmailSystem(user.Email, "Activate Account Skyleaeaccess", body);
                         return Ok();
                     }
                     else
@@ -405,7 +408,7 @@ namespace qbService.Controllers
                 string callbackUrl = Url.Action(null, null, new { code = code, email = user.Email }, Request.Scheme);
                 EmailService emailService = new EmailService(_configuration);
                 string body = "Please change your password by clicking here: <a href=\"" + callbackUrl.Replace("api/Account/ForgotPassword", "forgotPassword") + "\">link</a>";
-                emailService.SendEmail(user.Email, "Forgot Password Skyleaeaccess", body);
+                emailService.SendEmailSystem(user.Email, "Forgot Password Skyleaeaccess", body);
                 return Ok(callbackUrl.Replace("api/Account/ForgotPassword", "forgotPassword"));
             }
 

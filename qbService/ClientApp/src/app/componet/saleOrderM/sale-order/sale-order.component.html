@@ -1,0 +1,135 @@
+<div class="container">
+  <h1 style="color:white">Create Sale Order</h1>
+  <hr>
+  <form novalidate [formGroup]="formGroup" (ngSubmit)="save()">
+    <!--(ngSubmit)="save()"-->
+    <div class="row">
+      <div class="col-6">
+        <div class="form-group ">
+          <label for="category" style="display:block;">Customers</label>
+          <select formControlName="CustomerRefListID"
+                  (change)="onChange($event.target)"
+                  class="form-control form-control-sm"
+                  type="text" id="customer" placeholder="Customer">
+            <option *ngFor="let item of customers" [value]="item.listID">{{item.fullName}}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="enableSaleOrder==true">
+      <div class="col">
+        <div class="table-responsive">
+          <table class="table table-hover table-dark table-sm">
+            <thead>
+              <tr>
+                <th scope="col">ITEM</th>
+                <th scope="col">DESCRIPTION</th>
+                <th scope="col">ORDERED</th>
+                <th scope="col">AMOUNT</th>
+                <th scope="col">OPTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr formArrayName="SalesOrderLineAdd" *ngFor="let saleOrder of formGroup.controls.SalesOrderLineAdd?.controls; let i = index">
+                <ng-container [formGroupName]="i">
+                  <td>
+                    <!--<input formControlName="ItemRefListID"
+                           #selec
+                           class="form-control form-control-sm"
+                           list="browsers" name="browser">
+                    <datalist id="browsers">
+                      <option *ngFor="let item of items" [value]="item.fullName">
+                    </datalist>-->
+                    <select formControlName="ItemRefListID"
+                            #selec
+                            class="form-control form-control-sm"
+                            type="text" id="item" placeholder="item">
+                      <option *ngFor="let item of items" [value]="item.listID">{{item.fullName}}</option>
+                    </select>
+                  </td>
+                  <td>{{items|DescByItem:selec.value}}</td>
+                  <td>
+                    <input formControlName="Quantity"
+                           #ordered 
+                           class="form-control form-control-sm"
+                           type="number" id="companyName"
+                           style="width:65px">
+                  </td>
+                  <td>{{items|AmountByItem:selec.value:ordered.value}}</td>
+                  <td>
+                    <button (click)="removeSalesOrderLineAdd(i)"
+                            type="button"
+                            class="btn btn-sm btn-danger">
+                      Delete
+                    </button>
+                  </td>
+                </ng-container>
+              </tr>
+              <tr>
+                <td colspan="3" style="border-top-color:white">
+                  <button type="button" class="btn btn-sm btn-info faa-parent animated-hover " (click)="addSalesOrderLineAdd()">
+                    <i class="fas fa-plus faa-tada"></i>
+                    Add Item
+                  </button>
+                  <b> TOTAL</b>
+                </td>
+                <td colspan="2" style="border-top-color:white"><b>{{items|AmountTotal:formGroup.controls.SalesOrderLineAdd?.controls}}</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+
+        </div>
+        <!--<button type="button" class="btn  btn-danger mt-2 mr-2" (click) ="goBack()">Cancel</button>-->
+        <button type="submit" class="btn  btn-info mt-2" [disabled]="!formGroup.valid">Create Sale Order</button>
+      </div>
+    </div>
+  </form>
+  <div class="jumbotron" *ngIf="enableSaleOrder==false">
+    <h1 class="display-4 text-center">Warning!!</h1>
+    <p class="lead text-center">This customer does not meet the requirements.</p>
+
+    <ng-container *ngIf="creditLimite">
+      <p class="lead text-center">The credit limit exceeds the established parameters</p>
+    </ng-container>
+
+    <ng-container *ngIf="invocesDueDate">
+      <p class="lead text-center">The customer has  {{_saleOrderService.saleOrderConfig.invocesDueDate}} or more overdue invoices.</p>
+    </ng-container>
+
+    <ng-container *ngIf="daysNextDueDate">
+      <p class="lead text-center">The customer has at least one invoice due {{_saleOrderService.saleOrderConfig.daysNextDueDate}} days past due.</p>
+    </ng-container>
+
+    <ng-container *ngIf="invocesDueDate||daysNextDueDate">
+      <ng-container *ngFor="let invoc of invoces">
+        <p class="lead text-center"><b>Due Date:</b> {{invoc.dueDate|date}} <b>Amount:</b> {{invoc.balanceRemaining.toFixed(2)}}</p>
+      </ng-container>
+      <p class="lead text-center"><b>Amount Total: {{invoces|AmountTotalByInvoce}}</b></p>
+    </ng-container>
+
+    <hr class="my-4">
+    <p class="lead text-center">Contact your boss to activate the new Sale Order creation for this customer.</p>
+
+    <ng-container *ngIf="code">
+      <div *ngIf="codeValid" class="invalid text-center text-danger">
+        Code Error
+      </div>
+      <input #codigo
+             class="form-control form-control-sm text-center" type="text"
+             style="width:100px; display: block; margin: 10px auto;" placeholder="Code" maxlength="6">
+      <a *ngIf="code" class="btn btn-info btn-lg text-center" role="button" style="display:block" (click)="cheqCode(codigo.value)">Validate</a>
+    </ng-container>
+    <a *ngIf="!code" class="btn btn-info btn-lg text-center" role="button" style="display:block" (click)="getCode()">Activate</a>
+  </div>
+
+  <div class="jumbotron" *ngIf="loadCustomers||customers.length==0||items.lenght==0">
+    <h1 class="display-4 text-center" *ngIf="loadCustomers">Loading...</h1>
+    <h1 class="display-4 text-center" *ngIf="!loadCustomers&&(customers.length==0||items.lenght==0)">Error try again</h1>
+    <a class="btn btn-info btn-lg text-center"  role="button" style="display:block" *ngIf="!loadCustomers&&(customers.length==0||items.lenght==0)" (click)="loadInicilaData()">Retry</a>
+  </div>
+
+</div>
+
