@@ -28,6 +28,7 @@ import { ChangePassUserComponent } from './modalview/change-pass-user/change-pas
       NgbModule,
       NgbPaginationModule
     ],
-    entryComponents:[RolUserComponent],
+    entryComponents: [RolUserComponent,
+        ChangePassUserComponent],
 })
 export class UserModule { }

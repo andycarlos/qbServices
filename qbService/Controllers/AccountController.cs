@@ -252,7 +252,7 @@ namespace qbService.Controllers
             }
             if (user == null)
             {
-                return Ok("User no valid");
+                return BadRequest("User no valid");
             }
             IdentityResult result1 = await _userManager.RemovePasswordAsync(user);
             IdentityResult result = await _userManager.AddPasswordAsync(user, Password.NewPass);

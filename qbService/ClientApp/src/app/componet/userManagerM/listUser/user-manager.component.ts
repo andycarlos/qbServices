@@ -7,6 +7,7 @@ import { UserManagerService } from '../user-manager.service';
 import { RolUserComponent } from '../modalView/rol-user/rol-user.component';
 import { ConfimationComponent } from '../../../modalview/confimation/confimation.component';
 import { DomSanitizer } from '@angular/platform-browser';
+import { ChangePassUserComponent } from '../modalview/change-pass-user/change-pass-user.component';
 
 @Component({
   selector: 'app-user-manager',
@@ -109,6 +110,10 @@ export class UserManagerComponent implements OnInit {
                 this.userList = this.userList.filter(u => u.email != user.email);
             });
         }, () => { });
+    }
+    editPasswordUser(user: IUser) {
+        const modalRef = this.modalService.open(ChangePassUserComponent);
+        modalRef.componentInstance.userSelect = user;
     }
 
 }

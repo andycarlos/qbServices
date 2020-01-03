@@ -1,1 +1,49 @@
-<p>change-pass-user works!</p>
+<div class="modal-header">
+  <h4 class="modal-title">Change Password</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form novalidate [formGroup]="formGroupPass" >
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input formControlName="password"
+             #password
+             class="form-control form-control-sm"
+             type="password" id="password" placeholder="Enter password">
+      <small id="emailHelp" class="form-text"
+             *ngIf="((formGroupPass.get('password').touched || formGroupPass.get('password').dirty) && formGroupPass.get('password').errors?.required)">
+        The field is required.
+      </small>
+      <small id="emailHelp" class="form-text"
+             *ngIf="((formGroupPass.get('password').touched || formGroupPass.get('password').dirty) && formGroupPass.get('password').errors?.minlength)">
+        Password must be at least 5 characters long.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="passwordConf">Confirm Password</label>
+      <input formControlName="passwordConf"
+             #passwordConf
+             class="form-control form-control-sm"
+             type="password" id="passwordConf" placeholder="Enter passwordConf">
+      <small id="emailHelp" class="form-text"
+             *ngIf="((formGroupPass.get('passwordConf').touched || formGroupPass.get('passwordConf').dirty) && formGroupPass.get('passwordConf').errors?.required)">
+        The field is required.
+      </small>
+      <small class="form-text" *ngIf="( (formGroupPass.get('passwordConf').touched || formGroupPass.get('passwordConf').dirty)
+                                            && (formGroupPass.get('password').touched || formGroupPass.get('password').dirty)
+                                            && formGroupPass.errors?.notSame )">
+        The password are not the same.
+      </small>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss()">Cancel</button>
+      <button type="submit" class="btn btn-danger" (click)="savePass()" [disabled]="!formGroupPass.valid">Ok</button>
+    </div>
+  </form>
+</div>
+

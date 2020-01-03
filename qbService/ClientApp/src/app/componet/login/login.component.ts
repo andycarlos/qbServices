@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, AsyncValidatorFn, ValidationErrors, AbstractControl } from '@angular/forms';
-import { UserService, IUser } from '../../services/user.service';
+import { UserService, IUser, IEmail } from '../../services/user.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable, of } from 'rxjs';
 
@@ -77,6 +77,16 @@ export class LoginComponent implements OnInit {
             if (pass)
                 this.formGroup.get('password').setValue(pass);///
         });
+    }
+    forgodtpassword() {
+        let email: IEmail = { email: this.formGroup.get('email').value };
+        if (this.formGroup.get("email").valid) {
+            this._userService.forgotPassword(email).subscribe(x => {
+                this.error = "Cheque you Email for continue";
+            });
+        }
+        else
+            this.error = "Required correct Email.";
     }
 
 }

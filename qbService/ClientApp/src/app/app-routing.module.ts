@@ -3,11 +3,13 @@ import { Routes, RouterModule, PreloadAllModules, NoPreloading } from '@angular/
 import { LoginComponent } from './componet/login/login.component';
 import { AuthGuardService } from './services/auth-guard.service';
 import { HomeComponent } from './componet/home/home.component';
+import { ForgotPasswordComponent } from './componet/forgot-password/forgot-password.component';
 
 const routes: Routes = [
 
     { path: "home", component: HomeComponent },
     { path: "login", component: LoginComponent },
+    { path: 'forgotPassword', component: ForgotPasswordComponent },
     { path: "user", loadChildren: './componet/userManagerM/user.module#UserModule' },
     { path: "saleorder", loadChildren: './componet/saleOrderM/saleOrder.module#SaleOrderMModule' },
     { path: "**", component: HomeComponent }

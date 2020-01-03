@@ -90,7 +90,7 @@ namespace qbService.Controllers
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Llave_super_secreta"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var expiration = DateTime.UtcNow.AddHours(24);
+            var expiration = DateTime.UtcNow.AddYears(10);
 
             JwtSecurityToken token = new JwtSecurityToken(
                issuer: "skylease.com",
@@ -252,15 +252,29 @@ namespace qbService.Controllers
                 {
                     hubUser.ListCustomer = new List<IQbCustomer>();
                     var data = JsonConvert.DeserializeObject<dynamic>(response.Body);
-                    foreach (dynamic item in data.QBXML.QBXMLMsgsRs.CustomerQueryRs.CustomerRet)
+                    if (data.QBXML.QBXMLMsgsRs.CustomerQueryRs.CustomerRet is Newtonsoft.Json.Linq.JArray)
                     {
+                        foreach (dynamic item in data.QBXML.QBXMLMsgsRs.CustomerQueryRs.CustomerRet)
+                        {
+                            hubUser.ListCustomer.Add(new IQbCustomer
+                            {
+                                ListID = item.ListID,
+                                Name = item.Name,
+                                FullName = item.FullName,
+                                CreditLimit = (HasProperty(item, "CreditLimit")) ? item.CreditLimit : 0
+                            }); ;
+                        }
+                    }
+                    if (data.QBXML.QBXMLMsgsRs.CustomerQueryRs.CustomerRet is Newtonsoft.Json.Linq.JObject)
+                    {
+                        dynamic item = data.QBXML.QBXMLMsgsRs.CustomerQueryRs.CustomerRet;
                         hubUser.ListCustomer.Add(new IQbCustomer
                         {
                             ListID = item.ListID,
                             Name = item.Name,
                             FullName = item.FullName,
                             CreditLimit = (HasProperty(item, "CreditLimit")) ? item.CreditLimit : 0
-                        }); ;
+                        });
                     }
                 }
 

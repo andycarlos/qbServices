@@ -12,6 +12,7 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { InterceptorHttpService } from './services/interceptor-http.service';
 import { HomeComponent } from './componet/home/home.component';
 import { ConfimationComponent } from './modalview/confimation/confimation.component';
+import { ForgotPasswordComponent } from './componet/forgot-password/forgot-password.component';
 //ng bootstrap
 //import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 @NgModule({
@@ -21,6 +22,7 @@ import { ConfimationComponent } from './modalview/confimation/confimation.compon
         NavbarComponent,
         HomeComponent,
         ConfimationComponent,
+        ForgotPasswordComponent
     ],
     imports: [
         BrowserModule,
