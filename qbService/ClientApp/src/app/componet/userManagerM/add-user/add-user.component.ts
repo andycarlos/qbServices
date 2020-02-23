@@ -22,7 +22,7 @@ export class AddUserComponent implements OnInit {
         private _userManagerService: UserManagerService,
         private _activateRouter: ActivatedRoute) {
         this.formGroup = _fb.group({
-            companyName: new FormControl('', Validators.required),
+            companyName: new FormControl('',Validators.required),
             email: new FormControl('', [Validators.required], this.emalDuplication()),
             phone: new FormControl('', [Validators.required, Validators.pattern("[0-9]{5,14}")]),
         });
@@ -44,6 +44,7 @@ export class AddUserComponent implements OnInit {
             }
         }
     }
+
     ngOnInit() {
         this._activateRouter.params.subscribe(param => {
             if (!param['id']) {
@@ -62,23 +63,31 @@ export class AddUserComponent implements OnInit {
     }
     load: boolean = false;
     save() {
-        let loginInfo = this.formGroup.value as IUser;
-        loginInfo.password = "holam"
-        this.load = true;
-        this.formGroup.disable();
-        if (!this.userID) {
-          this._userManagerService.create(loginInfo).subscribe(null, err => console.log(err), () => {
-              this.load = false;
-              this.goBack();
-          });
-        }
-        else {
-            loginInfo.id = this.userID;
-            this._userManagerService.updateUser(loginInfo).subscribe(null, err => console.log(err), () => {
-                this.load = false;
-                this.goBack();
-            });
-        }
+        
+        this._userManagerService.AnyCompanyName(this.formGroup.get("companyName").value).subscribe(x => {
+            if (x === true) {
+                this.formGroup.get("companyName").setErrors({ 'anyCompanyName': true });
+            }
+            else {
+                let loginInfo = this.formGroup.value as IUser;
+                //loginInfo.password = "holam"
+                this.load = true;
+                this.formGroup.disable();
+                if (!this.userID) {
+                    this._userManagerService.create(loginInfo).subscribe(null, err => console.log(err), () => {
+                        this.load = false;
+                        this.goBack();
+                    });
+                }
+                else {
+                    loginInfo.id = this.userID;
+                    this._userManagerService.updateUser(loginInfo).subscribe(null, err => console.log(err), () => {
+                        this.load = false;
+                        this.goBack();
+                    });
+                }
+            }
+        }, error => console.log(error));
     }
     goBack() {
         this._router.navigate(['/user']);

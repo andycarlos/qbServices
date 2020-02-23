@@ -1,20 +1,20 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
-import { IUser, IRole, UserService } from '../../../services/user.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { UserManagerService } from '../user-manager.service';
-import { RolUserComponent } from '../modalView/rol-user/rol-user.component';
-import { DomSanitizer } from '@angular/platform-browser';
-import { ChangePassUserComponent } from '../../../modalView/change-pass-user/change-pass-user.component';
+import { IUser, UserService } from '../../../services/user.service';
 import { ConfimationsComponent } from '../../../modalView/confimation/confimation.component';
+import { FormGroup } from '@angular/forms';
+import { UserManagerService } from '../../userManagerM/user-manager.service';
+import { Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { DomSanitizer } from '@angular/platform-browser';
+import { QbRolUserComponent } from '../modalView/rol-user/rol-user.component';
+import { ChangePassUserComponent } from '../../../modalView/change-pass-user/change-pass-user.component';
 
 @Component({
-  selector: 'app-user-manager',
-  templateUrl: './user-manager.component.html',
-  styleUrls: ['./user-manager.component.css']
+  selector: 'app-qbuser',
+  templateUrl: './qbuser.component.html',
+  styleUrls: ['./qbuser.component.css']
 })
-export class UserManagerComponent implements OnInit {
+export class QbUserComponent implements OnInit {
 
     userList: IUser[] = [];
     //RolesList: IRole[] = [];
@@ -23,7 +23,7 @@ export class UserManagerComponent implements OnInit {
     filter: string = "";
     pageSize: number = 10;
     page: number = 1;
-
+    messageSuccess: boolean = true;
     constructor(private _userManagerService: UserManagerService,
         private _userService: UserService,
         private _router: Router,
@@ -39,28 +39,42 @@ export class UserManagerComponent implements OnInit {
         });
     }
 
+    timerOut;
     linkAddUser() {
-        this._router.navigate(['/user/add']);
+        if (this.userList.length <= 4) {
+            this._router.navigate(['/qbuser/add']);
+        } else {
+            clearTimeout(this.timerOut);
+            this.messageSuccess = false;
+            this.timerOut = setTimeout(() => {
+                console.log(1);
+                this.messageSuccess = true;
+            }, 5000);
+        }
+    }
+    alertClose() {
+        clearTimeout(this.timerOut);
+        this.messageSuccess = true;
     }
 
     ordernEmail: string;
-    ordernCompanyName: string;
-    ordernPhone: string;
+    ordernName: string;
+    ordernType: string;
     ordenAsed: string;
     ordenByUser(userProperty: string) {
         if (this.ordenAsed !== userProperty) {
             this.ordernEmail = "";
-            this.ordernCompanyName = "";
-            this.ordernPhone = "";
+            this.ordernName = "";
+            this.ordernType = "";
             switch (userProperty) {
-                case "companyName":
-                    this.ordernCompanyName = "↑";
+                case "name":
+                    this.ordernName = "↑";
                     break;
                 case "email":
                     this.ordernEmail = "↑";
                     break;
-                case "phone":
-                    this.ordernPhone = "↑";
+                case "typeUser":
+                    this.ordernType = "↑";
                     break;
                 default:
             }
@@ -69,17 +83,17 @@ export class UserManagerComponent implements OnInit {
         }
         else {
             this.ordernEmail = "";
-            this.ordernCompanyName = "";
-            this.ordernPhone = "";
+            this.ordernName = "";
+            this.ordernType = "";
             switch (userProperty) {
-                case "companyName":
-                    this.ordernCompanyName = "↓";
+                case "name":
+                    this.ordernName = "↓";
                     break;
                 case "email":
                     this.ordernEmail = "↓";
                     break;
-                case "phone":
-                    this.ordernPhone = "↓";
+                case "typeUser":
+                    this.ordernType = "↓";
                     break;
                 default:
             }
@@ -89,21 +103,12 @@ export class UserManagerComponent implements OnInit {
     }
 
     editRolUser(user: IUser) {
-        const modalRef = this.modalService.open(RolUserComponent);
+        const modalRef = this.modalService.open(QbRolUserComponent);
         modalRef.componentInstance.name = user.email;
         modalRef.componentInstance.userSelect = user;
     }
 
-    blockUser(user: IUser, event: boolean) {
-        user.block = event;
-        this._userManagerService.blockUser(user).subscribe();
-    }
-
-    editUser(user: IUser) {
-        this._router.navigate(['/user/edit', user.id])
-    }
-
-    delect(user:IUser) {
+    delect(user: IUser) {
         const modalRef = this.modalService.open(ConfimationsComponent);
         modalRef.componentInstance.title = "Profile deletion!";
         modalRef.componentInstance.body = this._sanitized.bypassSecurityTrustHtml(`<strong>Are you sure you want to delete <span class="text-danger">"${user.email}"</span> profile?</strong>`);

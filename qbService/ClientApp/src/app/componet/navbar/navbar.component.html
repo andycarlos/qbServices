@@ -13,43 +13,46 @@
         <a class="nav-link" [routerLink]="['/home']"><i class="fas fa-home"></i> Home</a>
       </li>
 
-      <li class="nav-item dropdown" *ngIf="_userService.loginNow && (_userService.rolAdmin || _userService.rolUser)" [routerLinkActive]="['active']">
-        <a class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <li class="nav-item dropdown" [routerLinkActive]="['active']" *ngIf="_userService.loginNow &&
+          (_userService.rolAdmin ||
+          _userService.rolCreateSO ||
+          _userService.rolConfigSO)" >
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="cursor:pointer">
           <i class="fas fa-user"></i> Customers
         </a>
         <ul class="dropdown-menu">
 
-          <li *ngIf="_userService.loginNow && (_userService.rolAdmin || _userService.rolUser)">
+          <li *ngIf="_userService.loginNow && (_userService.rolAdmin || _userService.rolCreateSO)">  <!--&& (_userService.rolAdmin || _userService.rolUser)-->
             <a class="dropdown-item" [routerLink]="['/saleorder']"><i class="fas fa-plus"></i> Create Sale Order</a>
           </li>
-          <li *ngIf="_userService.loginNow && (_userService.rolAdmin || _userService.rolUser)">
+          <li *ngIf="_userService.loginNow && (_userService.rolAdmin || _userService.rolConfigSO)">
             <a class="dropdown-item" [routerLink]="['/saleorder/config']"><i class="fas fa-cog"></i> Config Sale Order</a>
           </li>
 
-          <li class="dropdown-divider"></li>
+          <!--<li class="dropdown-divider"></li>
 
-          <li><a class="dropdown-item">Invoce</a></li>
+          <li><a class="dropdown-item">Invoce</a></li>-->
 
           <!--<li>
-    <a class="dropdown-item dropdown-toggle">Sale Order</a>
-    <ul class="dropdown-menu">
-      <li><a class="dropdown-item"><i class="fas fa-plus"></i> Create Sale Order</a></li>
-      <li><a class="dropdown-item"><i class="fas fa-cog"></i> Config Sale Order</a></li>
-    </ul>
-  </li>
-
-  <li class="dropdown-divider"></li>
-
-  <li><a class="dropdown-item">Invoce</a></li>-->
+        <a class="dropdown-item dropdown-toggle">Sale Order</a>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item"><i class="fas fa-plus"></i> Create Sale Order</a></li>
+          <li><a class="dropdown-item"><i class="fas fa-cog"></i> Config Sale Order</a></li>
+        </ul>
+      </li>-->
 
         </ul>
       </li>
       <!--<li class="nav-item" *ngIf="_userService.loginNow && (_userService.rolAdmin || _userService.rolUser)" [routerLinkActive]="['active']">
-        <a class="nav-link" [routerLink]="['/saleorder']">Create Sale Order</a>
+    <a class="nav-link" [routerLink]="['/saleorder']">Create Sale Order</a>
+  </li>
+  <li class="nav-item" *ngIf="_userService.loginNow && (_userService.rolAdmin || _userService.rolUser)" [routerLinkActive]="['active']">
+    <a class="nav-link" [routerLink]="['/saleorder/config']">Config Sale Order</a>
+  </li>-->
+      <li class="nav-item" *ngIf="_userService.loginNow && _userService.rolQbAdmin"  [routerLinkActive]="['active']">
+        <!--*ngIf="_userService.loginNow && (_userService.rolAdmin || _userService.rolUser)"-->
+        <a class="nav-link" [routerLink]="['/qbuser']"><i class="fas fa-users-cog"></i> Users</a>
       </li>
-      <li class="nav-item" *ngIf="_userService.loginNow && (_userService.rolAdmin || _userService.rolUser)" [routerLinkActive]="['active']">
-        <a class="nav-link" [routerLink]="['/saleorder/config']">Config Sale Order</a>
-      </li>-->
       <li class="nav-item" *ngIf="_userService.loginNow && _userService.rolAdmin" [routerLinkActive]="['active']">
         <a class="nav-link" [routerLink]="['/user']"><i class="fas fa-users-cog"></i> Users Manager</a>
       </li>
@@ -59,7 +62,7 @@
 
     <div *ngIf="_userService.loginNow " class="btn-group">
       <button type="button" class="btn btn-info dw" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        {{(_userService.loginNow!='')?_userService.userEmail.substr(0,1).toUpperCase():'Sign in'}}
+        {{(_userService.loginNow!=false)?_userService.userEmail.substr(0,1).toUpperCase():'Sign in'}}
       </button>
       <div class="dropdown-menu dropdown-menu-left dropdown-menu-lg-right ">
         <div class="container">
@@ -73,7 +76,7 @@
     </div>
     <div *ngIf="!_userService.loginNow" class="btn-group">
       <button type="button" class="btn btn-info dw" [routerLink]="['/login']" >
-        {{(_userService.loginNow!='')?_userService.userEmail.substr(0,1).toUpperCase():'Sign in'}}
+        {{(_userService.loginNow!=false)?_userService.userEmail.substr(0,1).toUpperCase():'Sign in'}}
       </button>
     </div>
 

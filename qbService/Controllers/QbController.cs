@@ -31,6 +31,8 @@ namespace qbService.Controllers
         private readonly IConfiguration _configuration;
         private readonly IHubContext<ServiceHub> _serviceHub;
 
+        IHubUser hubUser = null;
+
         string ErrorTimer = "Timeout Exceeded";
         string ErrorDestOff = "Desktop APP is unlogin";
         string ErrorRequestNoEnd = "Last Requet no END";
@@ -84,7 +86,7 @@ namespace qbService.Controllers
         {
             var claims = new List<Claim>()
             {
-                new Claim("Email", userInfo.Email),
+                new Claim("EmailMain", userInfo.Email),
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Llave_super_secreta"]));
@@ -126,21 +128,52 @@ namespace qbService.Controllers
             return BadRequest(new { Error = "User invalid" });
         }
 
+        [HttpPost]
+        [Route("Email")]
+        [AllowAnonymous]
+        public IActionResult Email([FromBody] EmailModel emailModel)
+        {
+            try
+            {
+                //emailModel.UserEmail = "acalfonso@skylease.aero";
+                string userEmail = emailModel.UserEmail;
+                if (emailModel.UserEmail == null|| emailModel.UserEmail == "")
+                { 
+                    userEmail = User.Claims.ToList().FirstOrDefault(x => x.Type == "EmailMain").Value.ToLower();
+                }
+                EmailService emailService = new EmailService(_configuration);
+                emailService.SendEmailSystem(userEmail, emailModel.Subject, emailModel.Body);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         private Boolean TimeWait(IHubUser hubUser)
         {
             int count = 0;
             int count1 = 0;
             string tempToken = string.Empty;
-            while (hubUser.Token.Count == 0 || (hubUser.Token.Count > 0 && (hubUser.Token[0] != Token && hubUser.Token[0] != Token+ ":=>Activado")))
+            while (hubUser.Token.Count == 0 || (tempToken != Token && tempToken != Token + ":=>Activado"))//(hubUser.Token.Count > 0 && (hubUser.Token[0] != Token && hubUser.Token[0] != Token+ ":=>Activado")))
             {
                 count++;
                 count1++;
                 //selecionar el nuevo token a validar
-                if (hubUser.Token.Count > 0 && hubUser.Token[0] != tempToken)
+                try
                 {
-                    count1 = 0;
-                    tempToken = hubUser.Token[0];
+                    if (hubUser.Token.Count > 0 && hubUser.Token[0] != tempToken)
+                    {
+                        tempToken = hubUser.Token[0];
+                        count1 = 0;
+                    }
                 }
+                catch (Exception e)
+                {
+                    int a = 565;
+                }
+                
                 //elimina el token por problemas de error
                 if (hubUser.Token.Count > 0 && count1 > 200 && hubUser.Token[0] == tempToken)
                 {
@@ -230,55 +263,157 @@ namespace qbService.Controllers
                 });
             }
         }
-        
+
+        private void UpdateHubUser()
+        {
+            //var companyName = User.Claims.ToList().FirstOrDefault(x => x.Type == "CompanyName").Value.ToLower();
+            //var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.CompanyName == companyName && x.TypeUser == null);
+            var email = User.Claims.ToList().FirstOrDefault(x => x.Type == "EmailMain").Value.ToLower();
+            if (email != null)
+            {
+                this.hubUser = HubUser.HubUsers.FirstOrDefault(x => x.Email == email);
+            }
+        }
+
         [HttpPost]
         [Route("RequestReturn")]
         public IActionResult RunQueryReturn([FromBody] IHubData response)
         {
-            var email = User.Claims.ToList().FirstOrDefault(x => x.Type == "Email").Value.ToLower();
-            IHubUser hubUser = null;
-            if (email != null)
-            {
-                hubUser = HubUser.HubUsers.FirstOrDefault(x => x.Email == email);
-            }
+            UpdateHubUser();
             if (hubUser != null)
             {
                 hubUser.Token.Add(response.Token);
                 while (hubUser.Token[0] != response.Token)
                 { System.Threading.Thread.Sleep(10); }
 
-                //getAllCustomer------------------------------------------
-                if (response.Body.IndexOf("CustomerQueryRs") != -1)
+                //getAllCustomer-----------------------------------------
+                if (response.Funcion == "getAllCustomers")
                 {
                     hubUser.ListCustomer = new List<IQbCustomer>();
+                    hubUser.ListCustomer.AddRange(JsonConvert.DeserializeObject<List<IQbCustomer>>(response.Body));
+                    #region aaaa
+
+                    //var data = JsonConvert.DeserializeObject<dynamic>(response.Body);
+
+                    //if (data.QBXML.QBXMLMsgsRs.CustomerQueryRs.CustomerRet is Newtonsoft.Json.Linq.JArray)
+                    //{
+                    //    foreach (dynamic item in data.QBXML.QBXMLMsgsRs.CustomerQueryRs.CustomerRet)
+                    //    {
+                    //        hubUser.ListCustomer.Add(new IQbCustomer
+                    //        {
+                    //            ListID = item.ListID,
+                    //            Name = item.Name,
+                    //            FullName = item.FullName,
+                    //            CreditLimit = (HasProperty(item, "CreditLimit")) ? item.CreditLimit : 0,
+                    //            Email = (HasProperty(item, "Email")) ? item.Email : "",
+                    //            SaleRepListID = (HasProperty(item, "SalesRepRef")) ? item.SalesRepRef.ListID : ""
+                    //        }); 
+                    //    }
+                    //}
+                    //if (data.QBXML.QBXMLMsgsRs.CustomerQueryRs.CustomerRet is Newtonsoft.Json.Linq.JObject)
+                    //{
+                    //    dynamic item = data.QBXML.QBXMLMsgsRs.CustomerQueryRs.CustomerRet;
+                    //    hubUser.ListCustomer.Add(new IQbCustomer
+                    //    {
+                    //        ListID = item.ListID,
+                    //        Name = item.Name,
+                    //        FullName = item.FullName,
+                    //        CreditLimit = (HasProperty(item, "CreditLimit")) ? item.CreditLimit : 0,
+                    //        Email = (HasProperty(item, "Email")) ? item.Email : "",
+                    //        SaleRepListID = (HasProperty(item, "SalesRepRef")) ? item.SalesRepRef.ListID : ""
+                    //    });
+                    //}
+                    #endregion
+                }
+
+                // getAllVendors-----------------------------------------
+                if (response.Body.IndexOf("VendorQueryRs") != -1)
+                {
+                    hubUser.ListVendors = new List<IQbVendors>();
                     var data = JsonConvert.DeserializeObject<dynamic>(response.Body);
-                    if (data.QBXML.QBXMLMsgsRs.CustomerQueryRs.CustomerRet is Newtonsoft.Json.Linq.JArray)
+                    if (data.QBXML.QBXMLMsgsRs.VendorQueryRs.VendorRet is Newtonsoft.Json.Linq.JArray)
                     {
-                        foreach (dynamic item in data.QBXML.QBXMLMsgsRs.CustomerQueryRs.CustomerRet)
+                        foreach (dynamic item in data.QBXML.QBXMLMsgsRs.VendorQueryRs.VendorRet)
                         {
-                            hubUser.ListCustomer.Add(new IQbCustomer
+                            hubUser.ListVendors.Add(new IQbVendors
                             {
-                                ListID = item.ListID,
-                                Name = item.Name,
-                                FullName = item.FullName,
-                                CreditLimit = (HasProperty(item, "CreditLimit")) ? item.CreditLimit : 0
-                            }); ;
+                                ListID = (HasProperty(item, "ListID")) ? item.ListID : "",
+                                Name = (HasProperty(item, "Name")) ? item.Name : "",
+                                Email = (HasProperty(item, "Email")) ? item.Email : "",
+                            });
                         }
                     }
-                    if (data.QBXML.QBXMLMsgsRs.CustomerQueryRs.CustomerRet is Newtonsoft.Json.Linq.JObject)
+                    if (data.QBXML.QBXMLMsgsRs.VendorQueryRs.VendorRet is Newtonsoft.Json.Linq.JObject)
                     {
-                        dynamic item = data.QBXML.QBXMLMsgsRs.CustomerQueryRs.CustomerRet;
-                        hubUser.ListCustomer.Add(new IQbCustomer
+                        dynamic item = data.QBXML.QBXMLMsgsRs.VendorQueryRs.VendorRet;
+                        hubUser.ListVendors.Add(new IQbVendors
                         {
-                            ListID = item.ListID,
-                            Name = item.Name,
-                            FullName = item.FullName,
-                            CreditLimit = (HasProperty(item, "CreditLimit")) ? item.CreditLimit : 0
+                            ListID = (HasProperty(item, "ListID")) ? item.ListID : "",
+                            Name = (HasProperty(item, "Name")) ? item.Name : "",
+                            Email = (HasProperty(item, "Email")) ? item.Email : "",
                         });
                     }
                 }
 
-                //getInvoce---------------------------------------------
+                // getAllEmployee----------------------------------------
+                if (response.Body.IndexOf("EmployeeQueryRs") != -1)
+                {
+                    hubUser.ListEmployee = new List<IQbEmployee>();
+                    var data = JsonConvert.DeserializeObject<dynamic>(response.Body);
+                    if (data.QBXML.QBXMLMsgsRs.EmployeeQueryRs.EmployeeRet is Newtonsoft.Json.Linq.JArray)
+                    {
+                        foreach (dynamic item in data.QBXML.QBXMLMsgsRs.EmployeeQueryRs.EmployeeRet)
+                        {
+                            hubUser.ListEmployee.Add(new IQbEmployee
+                            {
+                                ListID = (HasProperty(item, "ListID")) ? item.ListID : "",
+                                Name = (HasProperty(item, "Name")) ? item.Name : "",
+                                Email = (HasProperty(item, "Email")) ? item.Email : "",
+                            });
+                        }
+                    }
+                    if (data.QBXML.QBXMLMsgsRs.EmployeeQueryRs.EmployeeRet is Newtonsoft.Json.Linq.JObject)
+                    {
+                        dynamic item = data.QBXML.QBXMLMsgsRs.EmployeeQueryRs.EmployeeRet;
+                        hubUser.ListVendors.Add(new IQbVendors
+                        {
+                            ListID = (HasProperty(item, "ListID")) ? item.ListID : "",
+                            Name = (HasProperty(item, "Name")) ? item.Name : "",
+                            Email = (HasProperty(item, "Email")) ? item.Email : "",
+                        });
+                    }
+                }
+
+                // getAllOtherName---------------------------------------
+                if (response.Body.IndexOf("OtherNameQueryRs") != -1)
+                {
+                    hubUser.ListOtherName = new List<IQbOtherName>();
+                    var data = JsonConvert.DeserializeObject<dynamic>(response.Body);
+                    if (data.QBXML.QBXMLMsgsRs.OtherNameQueryRs.OtherNameRet is Newtonsoft.Json.Linq.JArray)
+                    {
+                        foreach (dynamic item in data.QBXML.QBXMLMsgsRs.OtherNameQueryRs.OtherNameRet)
+                        {
+                            hubUser.ListOtherName.Add(new IQbOtherName
+                            {
+                                ListID = (HasProperty(item, "ListID")) ? item.ListID : "",
+                                Name = (HasProperty(item, "Name")) ? item.Name : "",
+                                Email = (HasProperty(item, "Email")) ? item.Email : "",
+                            });
+                        }
+                    }
+                    if (data.QBXML.QBXMLMsgsRs.OtherNameQueryRs.OtherNameRet is Newtonsoft.Json.Linq.JObject)
+                    {
+                        dynamic item = data.QBXML.QBXMLMsgsRs.OtherNameQueryRs.OtherNameRet;
+                        hubUser.ListOtherName.Add(new IQbOtherName
+                        {
+                            ListID = (HasProperty(item, "ListID")) ? item.ListID : "",
+                            Name = (HasProperty(item, "Name")) ? item.Name : "",
+                            Email = (HasProperty(item, "Email")) ? item.Email : "",
+                        });
+                    }
+                }
+
+                //getInvoce----------------------------------------------
                 if (response.Body.IndexOf("InvoiceQueryRs") != -1)
                 {
                     hubUser.ListInvoce = new List<IQbInvoce>();
@@ -291,10 +426,10 @@ namespace qbService.Controllers
                     {
                         var data = JsonConvert.DeserializeObject<dynamic>(response.Body);
                         if (data.QBXML.QBXMLMsgsRs.InvoiceQueryRs.InvoiceRet is Newtonsoft.Json.Linq.JArray)
-                        { 
+                        {
                             foreach (dynamic item in data.QBXML.QBXMLMsgsRs.InvoiceQueryRs.InvoiceRet)
                             {
-                                hubUser.ListInvoce.Add(new IQbInvoce
+                                var tempItem = new IQbInvoce
                                 {
                                     TxnID = item.TxnID,
                                     TxnDate = item.TxnDate,
@@ -302,14 +437,46 @@ namespace qbService.Controllers
                                     BalanceRemaining = item.BalanceRemaining,
                                     IsPaid = item.IsPaid,
                                     RefNumber = item.RefNumber,
-                                    Subtotal = item.Subtotal
-                                });
+                                    Subtotal = item.Subtotal,
+                                    Items = new List<IQbInvoiceLineItem>()
+                                };
+                                #region Add los items si tiene
+                                if (HasProperty(item, "InvoiceLineRet"))
+                                {
+                                    if (item.InvoiceLineRet is Newtonsoft.Json.Linq.JArray)
+                                    {
+                                        foreach (dynamic itemX in item.InvoiceLineRet)
+                                        {
+                                            tempItem.Items.Add(new IQbInvoiceLineItem
+                                            {
+                                                ListID = HasProperty(itemX, "ItemRef") ? itemX.ItemRef.ListID : "",
+                                                Quantity = HasProperty(itemX, "Quantity") ? itemX.Quantity : 0,
+                                                Rate = HasProperty(itemX, "Rate") ? itemX.Rate : 0,
+                                                Amount = HasProperty(itemX, "Amount") ? itemX.Amount : 0
+                                            });
+                                        }
+                                    }
+                                    if (item.InvoiceLineRet is Newtonsoft.Json.Linq.JObject)
+                                    {
+                                        dynamic itemX = item.InvoiceLineRet;
+                                        tempItem.Items.Add(new IQbInvoiceLineItem
+                                        {
+                                            ListID = HasProperty(itemX, "ItemRef") ? itemX.ItemRef.ListID : "",
+                                            Quantity = HasProperty(itemX, "Quantity") ? itemX.Quantity : 0,
+                                            Rate = HasProperty(itemX, "Rate") ? itemX.Rate : 0,
+                                            Amount = HasProperty(itemX, "Amount") ? itemX.Amount : 0
+                                        });
+                                    }
+                                }
+                                #endregion
+                                hubUser.ListInvoce.Add(tempItem);
+
                             }
                         }
                         if (data.QBXML.QBXMLMsgsRs.InvoiceQueryRs.InvoiceRet is Newtonsoft.Json.Linq.JObject)
                         {
                             dynamic item = data.QBXML.QBXMLMsgsRs.InvoiceQueryRs.InvoiceRet;
-                            hubUser.ListInvoce.Add(new IQbInvoce
+                            var tempItem = new IQbInvoce
                             {
                                 TxnID = item.TxnID,
                                 TxnDate = item.TxnDate,
@@ -317,8 +484,39 @@ namespace qbService.Controllers
                                 BalanceRemaining = item.BalanceRemaining,
                                 IsPaid = item.IsPaid,
                                 RefNumber = item.RefNumber,
-                                Subtotal = item.Subtotal
-                            });
+                                Subtotal = item.Subtotal,
+                                Items = new List<IQbInvoiceLineItem>()
+                            };
+                            #region Add los items si tiene
+                            if (HasProperty(item, "InvoiceLineRet"))
+                            {
+                                if (item.InvoiceLineRet is Newtonsoft.Json.Linq.JArray)
+                                {
+                                    foreach (dynamic itemX in item.InvoiceLineRet)
+                                    {
+                                        tempItem.Items.Add(new IQbInvoiceLineItem
+                                        {
+                                            ListID = HasProperty(itemX, "ItemRef") ? itemX.ItemRef.ListID : "",
+                                            Quantity = HasProperty(itemX, "Quantity") ? itemX.Quantity : 0,
+                                            Rate = HasProperty(itemX, "Rate") ? itemX.Rate : 0,
+                                            Amount = HasProperty(itemX, "Amount") ? itemX.Amount : 0
+                                        });
+                                    }
+                                }
+                                if (item.InvoiceLineRet is Newtonsoft.Json.Linq.JObject)
+                                {
+                                    dynamic itemX = item.InvoiceLineRet;
+                                    tempItem.Items.Add(new IQbInvoiceLineItem
+                                    {
+                                        ListID = HasProperty(itemX, "ItemRef") ? itemX.ItemRef.ListID : "",
+                                        Quantity = HasProperty(itemX, "Quantity") ? itemX.Quantity : 0,
+                                        Rate = HasProperty(itemX, "Rate") ? itemX.Rate : 0,
+                                        Amount = HasProperty(itemX, "Amount") ? itemX.Amount : 0
+                                    });
+                                }
+                            }
+                            #endregion
+                            hubUser.ListInvoce.Add(tempItem);
                         }
                     }
                     catch (Exception e)
@@ -328,7 +526,7 @@ namespace qbService.Controllers
                     }
                 }
 
-                //getItemsInventory---------------------------------------------
+                //getItemsInventory--------------------------------------
                 if (response.Body.IndexOf("ItemQueryRs") != -1)
                 {
                     hubUser.ListItems = new List<IQbItem>();
@@ -419,7 +617,7 @@ namespace qbService.Controllers
                     }
                 }
 
-                //createSaleOrder
+                //createSaleOrder----------------------------------------
                 if (response.Body.IndexOf("SalesOrderAddRs") != -1)
                 {
                     if (response.Body.IndexOf("statusCode\":\"0\"") == -1)
@@ -433,6 +631,33 @@ namespace qbService.Controllers
                     else
                         hubUser.StatusCode = true;
                 }
+
+                //getAllSalesRep-----------------------------------------
+                if (response.Body.IndexOf("SalesRepQueryRs") != -1)
+                {
+                    hubUser.ListSalesRep = new List<IQbSalesRep>();
+                    var data = JsonConvert.DeserializeObject<dynamic>(response.Body);
+                    if (data.QBXML.QBXMLMsgsRs.SalesRepQueryRs.SalesRepRet is Newtonsoft.Json.Linq.JArray)
+                    {
+                        foreach (dynamic item in data.QBXML.QBXMLMsgsRs.SalesRepQueryRs.SalesRepRet)
+                        {
+                            hubUser.ListSalesRep.Add(new IQbSalesRep
+                            {
+                                SaleRepListID = (HasProperty(item, "ListID")) ? item.ListID : "",
+                                UserListID = (HasProperty(item, "SalesRepEntityRef")) ? item.SalesRepEntityRef.ListID : "",
+                            });
+                        }
+                    }
+                    if (data.QBXML.QBXMLMsgsRs.SalesRepQueryRs.SalesRepRet is Newtonsoft.Json.Linq.JObject)
+                    {
+                        dynamic item = data.QBXML.QBXMLMsgsRs.SalesRepQueryRs.SalesRepRet;
+                        hubUser.ListSalesRep.Add(new IQbSalesRep
+                        {
+                            SaleRepListID = (HasProperty(item, "ListID")) ? item.ListID : "",
+                            UserListID = (HasProperty(item, "SalesRepEntityRef")) ? item.SalesRepEntityRef.ListID : "",
+                        });
+                    }
+                }
             }
             hubUser.Token[0] += ":=>Activado";
             return Ok();
@@ -442,17 +667,12 @@ namespace qbService.Controllers
         [Route("getAllCustomers")]
         public async Task<IActionResult> getAllCustomer()
         {
-            var email = User.Claims.ToList().FirstOrDefault(x => x.Type == "Email").Value.ToLower();
-            IHubUser hubUser = null;
-            if (email != null)
-            {
-                hubUser = HubUser.HubUsers.FirstOrDefault(x => x.Email == email);
-            }
+            UpdateHubUser();
             if (hubUser != null)
             {
-                string query = $"<?xml version=\"1.0\"?><?qbxml version=\"2.0\"?><QBXML><QBXMLMsgsRq onError = \"continueOnError\"><CustomerQueryRq requestID = \"2\" /></QBXMLMsgsRq ></QBXML>";
+                string query = $"<?xml version=\"1.0\"?><?qbxml version=\"13.0\"?><QBXML><QBXMLMsgsRq onError = \"continueOnError\"><CustomerQueryRq requestID = \"2\" /></QBXMLMsgsRq ></QBXML>";
                 Token = Guid.NewGuid().ToString();
-                await _serviceHub.Clients.Client(hubUser.ConectionId).SendAsync("runQuery", query, Token);
+                await _serviceHub.Clients.Client(hubUser.ConectionId).SendAsync("runQuery", query, Token, "getAllCustomers");
                 if (TimeWait(hubUser))
                 {
                     List<IQbCustomer> resul = new List<IQbCustomer>();
@@ -466,21 +686,89 @@ namespace qbService.Controllers
             }
             return BadRequest(new { Error = ErrorDestOff });
         }
+
+        [HttpGet]
+        [Route("getAllVendors")]
+        public async Task<IActionResult> getAllVendors()
+        {
+            UpdateHubUser();
+            if (hubUser != null)
+            {
+                string query = $"<?xml version=\"1.0\" encoding=\"utf-8\"?><?qbxml version=\"13.0\"?><QBXML><QBXMLMsgsRq onError=\"stopOnError\"><VendorQueryRq></VendorQueryRq></QBXMLMsgsRq></QBXML>";
+                Token = Guid.NewGuid().ToString();
+                await _serviceHub.Clients.Client(hubUser.ConectionId).SendAsync("runQuery", query, Token,"");
+                if (TimeWait(hubUser))
+                {
+                    List<IQbVendors> resul = new List<IQbVendors>();
+                    resul.AddRange(hubUser.ListVendors);
+                    if (hubUser.Token[0] == Token + ":=>Activado")
+                        hubUser.Token.RemoveAt(0);
+                    return Ok(resul);
+                }
+                else
+                    return BadRequest(new { Error = ErrorTimer });
+            }
+            return BadRequest(new { Error = ErrorDestOff });
+        }
+
+        [HttpGet]
+        [Route("getAllEmployee")]
+        public async Task<IActionResult> getAllEmployee()
+        {
+            UpdateHubUser();
+            if (hubUser != null)
+            {
+                string query = $"<?xml version=\"1.0\" encoding=\"utf-8\"?><?qbxml version=\"13.0\"?><QBXML><QBXMLMsgsRq onError=\"stopOnError\"><EmployeeQueryRq></EmployeeQueryRq></QBXMLMsgsRq></QBXML>";
+                Token = Guid.NewGuid().ToString();
+                await _serviceHub.Clients.Client(hubUser.ConectionId).SendAsync("runQuery", query, Token,"");
+                if (TimeWait(hubUser))
+                {
+                    List<IQbEmployee> resul = new List<IQbEmployee>();
+                    resul.AddRange(hubUser.ListEmployee);
+                    if (hubUser.Token[0] == Token + ":=>Activado")
+                        hubUser.Token.RemoveAt(0);
+                    return Ok(resul);
+                }
+                else
+                    return BadRequest(new { Error = ErrorTimer });
+            }
+            return BadRequest(new { Error = ErrorDestOff });
+        }
+
+        [HttpGet]
+        [Route("getAllOtherName")]
+        public async Task<IActionResult> getAllOtherName()
+        {
+            UpdateHubUser();
+            if (hubUser != null)
+            {
+                string query = $"<?xml version=\"1.0\" encoding=\"utf-8\"?><?qbxml version=\"13.0\"?><QBXML><QBXMLMsgsRq onError=\"stopOnError\"><OtherNameQueryRq></OtherNameQueryRq></QBXMLMsgsRq></QBXML>";
+                Token = Guid.NewGuid().ToString();
+                await _serviceHub.Clients.Client(hubUser.ConectionId).SendAsync("runQuery", query, Token,"");
+                if (TimeWait(hubUser))
+                {
+                    List<IQbOtherName> resul = new List<IQbOtherName>();
+                    resul.AddRange(hubUser.ListOtherName);
+                    if (hubUser.Token[0] == Token + ":=>Activado")
+                        hubUser.Token.RemoveAt(0);
+                    return Ok(resul);
+                }
+                else
+                    return BadRequest(new { Error = ErrorTimer });
+            }
+            return BadRequest(new { Error = ErrorDestOff });
+        }
+
         [HttpGet]
         [Route("getItems")]
         public async Task<IActionResult> getItemsInventory()
         {
-            var email = User.Claims.ToList().FirstOrDefault(x => x.Type == "Email").Value.ToLower();
-            IHubUser hubUser = null;
-            if (email != null)
-            {
-                hubUser = HubUser.HubUsers.FirstOrDefault(x => x.Email == email);
-            }
+            UpdateHubUser();
             if (hubUser != null)
             {
                 string query = $"<?xml version=\"1.0\" encoding=\"utf-8\"?><?qbxml version=\"13.0\"?><QBXML><QBXMLMsgsRq onError=\"stopOnError\"><ItemQueryRq><ActiveStatus>ActiveOnly</ActiveStatus></ItemQueryRq></QBXMLMsgsRq></QBXML> ";
                 Token = Guid.NewGuid().ToString();
-                await _serviceHub.Clients.Client(hubUser.ConectionId).SendAsync("runQuery", query, Token);
+                await _serviceHub.Clients.Client(hubUser.ConectionId).SendAsync("runQuery", query, Token,"");
                 if (TimeWait(hubUser))
                 {
                     List<IQbItem> resul = new List<IQbItem>();
@@ -499,12 +787,7 @@ namespace qbService.Controllers
         [Route("getInvoces")]
         public async Task<IActionResult> getInvoce([FromBody]IQbInvoceFilter filter)
         {
-            var email = User.Claims.ToList().FirstOrDefault(x => x.Type == "Email").Value.ToLower();
-            IHubUser hubUser = null;
-            if (email != null)
-            {
-                hubUser = HubUser.HubUsers.FirstOrDefault(x => x.Email == email);
-            }
+            UpdateHubUser();
             if (hubUser != null)
             {
                 string customerID = String.Empty;
@@ -514,10 +797,14 @@ namespace qbService.Controllers
                 string paidStatus = String.Empty;
                 if (filter.PaidStatus != String.Empty)
                     paidStatus = "<PaidStatus>"+ filter.PaidStatus + "</PaidStatus>";
-                
-                string query = $"<?xml version=\"1.0\" encoding=\"utf-8\"?><?qbxml version=\"13.0\"?><QBXML><QBXMLMsgsRq onError=\"stopOnError\"><InvoiceQueryRq>"+customerID+paidStatus+"</InvoiceQueryRq></QBXMLMsgsRq></QBXML>";
+
+                string IncludeLineItems = String.Empty;
+                if (filter.includeLineItems)
+                    IncludeLineItems = "<IncludeLineItems>true</IncludeLineItems>";
+
+                string query = $"<?xml version=\"1.0\" encoding=\"utf-8\"?><?qbxml version=\"13.0\"?><QBXML><QBXMLMsgsRq onError=\"stopOnError\"><InvoiceQueryRq>"+customerID+paidStatus+ IncludeLineItems + "</InvoiceQueryRq></QBXMLMsgsRq></QBXML>";
                 Token = Guid.NewGuid().ToString();
-                await _serviceHub.Clients.Client(hubUser.ConectionId).SendAsync("runQuery", query, Token);
+                await _serviceHub.Clients.Client(hubUser.ConectionId).SendAsync("runQuery", query, Token,"");
                 if (TimeWait(hubUser))
                 {
                     if (filter.Overdue)
@@ -539,12 +826,7 @@ namespace qbService.Controllers
         [Route("CreateSaleOrder")]
         public async Task<IActionResult> CreateSaleOrder([FromBody]IQbSaleOrder body)
         {
-            var email = User.Claims.ToList().FirstOrDefault(x => x.Type == "Email").Value.ToLower();
-            IHubUser hubUser = null;
-            if (email != null)
-            {
-                hubUser = HubUser.HubUsers.FirstOrDefault(x => x.Email == email);
-            }
+            UpdateHubUser();
             if (hubUser != null)
             {
                 string customerID = String.Empty;
@@ -556,13 +838,13 @@ namespace qbService.Controllers
                 {
                     foreach (var item in body.SalesOrderLineAdd)
                     {
-                        SalesOrderLineAdd += "<SalesOrderLineAdd><ItemRef><ListID>" + item.ItemRefListID + "</ListID></ItemRef>" + "<Quantity>" + item.Quantity + "</Quantity></SalesOrderLineAdd>";
+                        SalesOrderLineAdd += "<SalesOrderLineAdd><ItemRef><ListID>" + item.ItemRefListID + "</ListID></ItemRef>" + "<Quantity>" + item.Quantity + "</Quantity><Amount>"+ string.Format("{0:0.00}", item.Amount) +"</Amount></SalesOrderLineAdd>";
                     }
                 }
 
                 string query = $"<?xml version=\"1.0\" encoding=\"utf-8\"?><?qbxml version=\"13.0\"?><QBXML><QBXMLMsgsRq onError=\"stopOnError\"><SalesOrderAddRq><SalesOrderAdd>" + customerID + SalesOrderLineAdd + "</SalesOrderAdd></SalesOrderAddRq></QBXMLMsgsRq></QBXML>";
                 Token = Guid.NewGuid().ToString();
-                await _serviceHub.Clients.Client(hubUser.ConectionId).SendAsync("runQuery", query, Token);
+                await _serviceHub.Clients.Client(hubUser.ConectionId).SendAsync("runQuery", query, Token,"");
                 if (TimeWait(hubUser))
                 {
                     bool statu = (hubUser.StatusCode)?true:false;
@@ -578,5 +860,31 @@ namespace qbService.Controllers
             }
             return BadRequest(new { Error = ErrorDestOff });
         }
+
+        [HttpGet]
+        [Route("getAllSalesRep")]
+        public async Task<IActionResult> getAllSalesRep()
+        {
+            UpdateHubUser();
+            if (hubUser != null)
+            {
+                string query = $"<?xml version=\"1.0\" encoding=\"utf-8\"?><?qbxml version=\"13.0\"?><QBXML><QBXMLMsgsRq onError=\"stopOnError\"><SalesRepQueryRq></SalesRepQueryRq></QBXMLMsgsRq></QBXML>";
+                Token = Guid.NewGuid().ToString();
+                await _serviceHub.Clients.Client(hubUser.ConectionId).SendAsync("runQuery", query, Token ,"");
+                if (TimeWait(hubUser))
+                {
+                    List<IQbSalesRep> resul = new List<IQbSalesRep>();
+                    resul.AddRange(hubUser.ListSalesRep);
+                    if (hubUser.Token[0] == Token + ":=>Activado")
+                        hubUser.Token.RemoveAt(0);
+                    return Ok(resul);
+                }
+                else
+                    return BadRequest(new { Error = ErrorTimer });
+            }
+            return BadRequest(new { Error = ErrorDestOff });
+        }
+
+
     }
 }

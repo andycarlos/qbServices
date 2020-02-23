@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace qbService.Migrations
 {
-    public partial class inicial : Migration
+    public partial class @public : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -40,8 +40,11 @@ namespace qbService.Migrations
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
                     AccessFailedCount = table.Column<int>(nullable: false),
-                    UserFistName = table.Column<string>(nullable: true),
-                    UserLastName = table.Column<string>(nullable: true)
+                    CompanyName = table.Column<string>(nullable: true),
+                    CreateTimer = table.Column<DateTime>(nullable: false),
+                    TypeUser = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: true),
+                    ListID = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -154,6 +157,51 @@ namespace qbService.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "SaleOrderConfigModel",
+                columns: table => new
+                {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    InvocesDueDate = table.Column<int>(nullable: false),
+                    DaysNextDueDate = table.Column<int>(nullable: false),
+                    CreditLimit = table.Column<bool>(nullable: false),
+                    ApplicationUserId = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SaleOrderConfigModel", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_SaleOrderConfigModel_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tareas",
+                columns: table => new
+                {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CreateDate = table.Column<DateTime>(nullable: false),
+                    FinDate = table.Column<DateTime>(nullable: true),
+                    Task = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
+                    ApplicationUserId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tareas", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Tareas_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -192,6 +240,17 @@ namespace qbService.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SaleOrderConfigModel_ApplicationUserId",
+                table: "SaleOrderConfigModel",
+                column: "ApplicationUserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tareas_ApplicationUserId",
+                table: "Tareas",
+                column: "ApplicationUserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -210,6 +269,12 @@ namespace qbService.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "SaleOrderConfigModel");
+
+            migrationBuilder.DropTable(
+                name: "Tareas");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

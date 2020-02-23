@@ -1,9 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
 body {
   /*background: rgb(128, 128, 128);*/
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   background: linear-gradient(180deg, #4b4b4b 0%, rgb(128, 128, 128) 36%,#4b4b4b 100%);
-  background-repeat:no-repeat;
-  background-attachment:fixed;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 
@@ -37,3 +40,8 @@ ngb-pagination > ul > li.page-item.disabled > a {
   border-radius: 2.25rem;
 }
 
+ngb-typeahead-window {
+  overflow-x: hidden;
+  max-height:178px;
+  max-width:100%;
+}

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { IPassWord, UserManagerService } from '../../user-manager.service';
-import { IUser } from '../../../../services/user.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { IUser } from '../../services/user.service';
+import { UserManagerService, IPassWord } from '../../componet/userManagerM/user-manager.service';
 
 @Component({
   selector: 'app-change-pass-user',

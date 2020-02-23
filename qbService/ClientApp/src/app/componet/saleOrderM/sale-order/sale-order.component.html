@@ -4,21 +4,74 @@
   <form novalidate [formGroup]="formGroup" (ngSubmit)="save()">
     <!--(ngSubmit)="save()"-->
     <div class="row">
-      <div class="col-6">
+      <div class="col">
         <div class="form-group ">
           <label for="category" style="display:block;">Customers</label>
-          <select formControlName="CustomerRefListID"
-                  (change)="onChange($event.target)"
-                  class="form-control form-control-sm"
-                  type="text" id="customer" placeholder="Customer">
-            <option *ngFor="let item of customers" [value]="item.listID">{{item.fullName}}</option>
-          </select>
+
+          <!--<select formControlName="CustomerRefListID"
+          (change)="onChange($event.target)"
+          class="form-control form-control-sm"
+          type="text" id="customer" placeholder="Customer">
+    <option *ngFor="let item of customers; let i = index" [value]="item.listID">{{item.fullName}}</option>
+  </select>-->
+
+          <input formControlName="CustomerRefListID"
+                 class="form-control form-control-sm"
+                 name="CustomerRefListID"
+                 (input) ="onChangeCustomerRefListID($event.target.value)"
+                 (selectItem)="onChangeCustomerRefListID($event.item.fullName)"
+                 (keydown)="typeaheadKeydown(customer)"
+                 (focus)="focusCustomer$.next($event.target.value)"
+                 [ngbTypeahead]="search"
+                 [inputFormatter]="formatterCustomer"
+                 [resultFormatter]="formatterCustomer"
+                 #customer="ngbTypeahead">
+          <!--list="CustomerRefListID"
+          <datalist id="CustomerRefListID">
+            <option *ngFor="let item of customers;" [value]="item.fullName">
+          </datalist>-->
+
         </div>
       </div>
     </div>
 
     <div class="row" *ngIf="enableSaleOrder==true">
+      
       <div class="col">
+        <div class="row" >
+
+          <div class="col-12 col-md-auto  mb-2">
+            <button class="btn btn-info " type="button" (click)="refil()">Refill last invoice</button>
+          </div>
+
+          <ng-container *ngIf="customerSelect.shipToAddress">
+            <div class="col-12 col-sm-6 col-md-3 mb-2 pl-md-0">
+              <select 
+                formControlName="Shiping"
+                class="form-control form-control-sm"
+                type="text" id="customer" placeholder="Customer">
+              <option *ngFor="let item of customerSelect.shipToAddress; let i = index" [ngValue]="item" >{{item.name}}</option>
+              </select>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md  mb-2 pl-sm-0">
+              <div class="card text-white bg-info">
+                <div class="card-body pl-2 py-1" style="white-space: pre-wrap;">
+                  <div class="card-text" >{{ ((Shiping?.addr1)?Shiping?.addr1+'\n' :'')+
+                    ((Shiping?.addr2)?Shiping?.addr2+'\n':'')+
+                    ((Shiping?.addr3)?Shiping?.addr3+'\n':'')+
+                    ((Shiping?.addr4)?Shiping?.addr4+'\n':'')+
+                    ((Shiping?.addr5)?Shiping?.addr5+'\n':'')+
+                    ((Shiping?.city)?Shiping?.city:'') + ((Shiping?.state)?', '+Shiping?.state:'') + ((Shiping?.postalCode)?', '+Shiping?.postalCode:'')+ ((Shiping?.country)?', '+Shiping?.country+'\n':'')+
+                    ((Shiping?.note)?Shiping?.note:'')
+                  }}</div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+        </div>
+
         <div class="table-responsive">
           <table class="table table-hover table-dark table-sm">
             <thead>
@@ -26,37 +79,56 @@
                 <th scope="col">ITEM</th>
                 <th scope="col">DESCRIPTION</th>
                 <th scope="col">ORDERED</th>
+                <th scope="col">RATE</th>
                 <th scope="col">AMOUNT</th>
                 <th scope="col">OPTION</th>
               </tr>
             </thead>
             <tbody>
-              <tr formArrayName="SalesOrderLineAdd" *ngFor="let saleOrder of formGroup.controls.SalesOrderLineAdd?.controls; let i = index">
+              <tr formArrayName="SalesOrderLineAdd" *ngFor="let saleOrder of SalesOrderLineAdd?.controls; let i = index">
                 <ng-container [formGroupName]="i">
                   <td>
-                    <!--<input formControlName="ItemRefListID"
+                    <ng-template #rt let-r="result" let-t="term">
+                      <div><ngb-highlight [result]="r.fullName" [term]="t"></ngb-highlight></div>
+                      <div><small><ngb-highlight [result]="r.salesDesc" [term]="t"></ngb-highlight></small></div>
+                      <!--<div>{{r.salesDesc}}</div>-->
+                    </ng-template>
+                    <input formControlName="ItemRefListID"
                            #selec
+                           #selec1="ngbTypeahead"
                            class="form-control form-control-sm"
-                           list="browsers" name="browser">
-                    <datalist id="browsers">
-                      <option *ngFor="let item of items" [value]="item.fullName">
-                    </datalist>-->
-                    <select formControlName="ItemRefListID"
-                            #selec
-                            class="form-control form-control-sm"
-                            type="text" id="item" placeholder="item">
-                      <option *ngFor="let item of items" [value]="item.listID">{{item.fullName}}</option>
-                    </select>
+                           name="items"
+                           (focus)="focusInput($event)"
+                           (keydown)="typeaheadKeydown(selec1)"
+                           [ngbTypeahead]="searchItems"
+                           [inputFormatter]="formatterItems"
+                           [resultTemplate]="rt">
                   </td>
                   <td>{{items|DescByItem:selec.value}}</td>
                   <td>
                     <input formControlName="Quantity"
-                           #ordered 
+                           #ordered
                            class="form-control form-control-sm"
-                           type="number" id="companyName"
+                           type="number" [id]="'Quantity'+i"
                            style="width:65px">
                   </td>
-                  <td>{{items|AmountByItem:selec.value:ordered.value}}</td>
+                  <td>
+                    <input formControlName="Rate"
+                           #Rate
+                           class="form-control form-control-sm"
+                           type="number" [id]="'Rate'+i"
+                           style="width:98px">
+                  </td>
+                  <td>
+                    <input formControlName="Amount"
+                           #Amount
+                           class="form-control form-control-sm"
+                           type="number" [id]="'Amount'+i"
+                           style="width:98px"
+                           (input)="updateRate(saleOrder,$event)"
+                           (keypress) ="updateRate(saleOrder,$event)"
+                           >
+                  </td>
                   <td>
                     <button (click)="removeSalesOrderLineAdd(i)"
                             type="button"
@@ -65,23 +137,21 @@
                     </button>
                   </td>
                 </ng-container>
-              </tr>
-              <tr>
-                <td colspan="3" style="border-top-color:white">
-                  <button type="button" class="btn btn-sm btn-info faa-parent animated-hover " (click)="addSalesOrderLineAdd()">
-                    <i class="fas fa-plus faa-tada"></i>
-                    Add Item
-                  </button>
-                  <b> TOTAL</b>
-                </td>
-                <td colspan="2" style="border-top-color:white"><b>{{items|AmountTotal:formGroup.controls.SalesOrderLineAdd?.controls}}</b></td>
-              </tr>
-            </tbody>
+        </tr>
+        <tr>
+          <td colspan="4" style="border-top-color:white">
+            <button type="button" class="btn btn-sm btn-info faa-parent animated-hover " (click)="addSalesOrderLineAdd()">
+              <i class="fas fa-plus faa-tada"></i>
+              Add Item
+            </button>
+            <b> TOTAL</b>
+          </td>
+          <td colspan="2" style="border-top-color:white"><b>{{items|AmountTotal: SalesOrderLineAdd?.controls}}</b></td>
+        </tr>
+        </tbody>
           </table>
         </div>
-        <div>
 
-        </div>
         <!--<button type="button" class="btn  btn-danger mt-2 mr-2" (click) ="goBack()">Cancel</button>-->
         <button type="submit" class="btn  btn-info mt-2" [disabled]="!formGroup.valid">Create Sale Order</button>
       </div>
@@ -125,10 +195,10 @@
     <a *ngIf="!code" class="btn btn-info btn-lg text-center" role="button" style="display:block" (click)="getCode()">Activate</a>
   </div>
 
-  <div class="jumbotron" *ngIf="loadCustomers||customers.length==0||items.lenght==0">
+  <div class="jumbotron" *ngIf="loadCustomers||customers.length==0||items.length==0">
     <h1 class="display-4 text-center" *ngIf="loadCustomers">Loading...</h1>
-    <h1 class="display-4 text-center" *ngIf="!loadCustomers&&(customers.length==0||items.lenght==0)">Error try again</h1>
-    <a class="btn btn-info btn-lg text-center"  role="button" style="display:block" *ngIf="!loadCustomers&&(customers.length==0||items.lenght==0)" (click)="loadInicilaData()">Retry</a>
+    <h1 class="display-4 text-center" *ngIf="!loadCustomers&&(customers.length==0||items.length==0)">Error try again</h1>
+    <a class="btn btn-info btn-lg text-center"  role="button" style="display:block" *ngIf="!loadCustomers&&(customers.length==0||items.length==0)" (click)="loadInicilaData()">Retry</a>
   </div>
 
 </div>

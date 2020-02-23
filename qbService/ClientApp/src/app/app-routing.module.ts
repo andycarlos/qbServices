@@ -10,6 +10,7 @@ const routes: Routes = [
     { path: "home", component: HomeComponent },
     { path: "login", component: LoginComponent },
     { path: 'forgotPassword', component: ForgotPasswordComponent },
+    { path: "qbuser", loadChildren: './componet/qbUserM/qbUser.module#QbUserModule' },
     { path: "user", loadChildren: './componet/userManagerM/user.module#UserModule' },
     { path: "saleorder", loadChildren: './componet/saleOrderM/saleOrder.module#SaleOrderMModule' },
     { path: "**", component: HomeComponent }

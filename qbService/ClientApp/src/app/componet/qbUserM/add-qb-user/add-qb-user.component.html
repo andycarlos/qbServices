@@ -1,0 +1,49 @@
+<div class="container">
+  <h1>New User</h1><!--*ngIf='!editMode'-->
+  <!--<h1 *ngIf='editMode'>Edit Section</h1>-->
+  <hr>
+  <form novalidate [formGroup]="formGroup" (ngSubmit)="save()">
+
+    <div class="row">
+      <div class="col">
+        <div class="form-group ">
+          <label style="display:block;">Type User</label>
+          <i *ngIf="a||b||c||d" [ngClass]="{'loading':a||b||c||d}" class="fas fa-spinner fa-pulse "></i>
+          <select formControlName="type"
+                  (change)="onChangeType()"
+                  class="form-control form-control-sm"
+                  id="type" placeholder="Type"
+                  style="display:inline;" [ngStyle]="{'padding-left.px':a||b||c||d?33:8}">
+            <option *ngFor="let item of type; index as i" [value]="i" >{{item}}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="form-group ">
+          <label style="display:block;">User Name !!If the user isn't show (required EMAIL in QuickBooks)!! </label>
+          <select formControlName="listID"
+                  (change)="onChangeName($event.target.value)"
+                  class="form-control form-control-sm"
+                  id="listID" placeholder="listID">
+            <option *ngFor="let item of lista; index as i" [value]="item.listID">{{item.name}}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="userSelect" class="card text-white bg-info mb-3">
+      <div class="card-header"><h5> User Information</h5></div>
+      <div class="card-body">
+        <h6 class="card-title">Name: {{userSelect.name}}</h6>
+        <h6 class="card-title">Email: {{userSelect.email}}</h6>
+        <p class="card-text">The system will send an email to the user to finish the registration.</p>
+        <button type="submit" class="btn  btn-info mt-2" [disabled]="!formGroup.valid">Add New User</button>
+      </div>
+    </div>
+
+  </form>
+  <button type="button" class="btn btn-danger btn-sm mr-2" (click)="goBack()">Cancel</button>
+</div>

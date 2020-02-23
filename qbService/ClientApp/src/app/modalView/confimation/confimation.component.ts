@@ -6,7 +6,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
   templateUrl: './confimation.component.html',
   styleUrls: ['./confimation.component.css']
 })
-export class ConfimationComponent implements OnInit {
+export class ConfimationsComponent implements OnInit {
     @Input() title;
     @Input() body;
     constructor(public activeModal: NgbActiveModal) { }

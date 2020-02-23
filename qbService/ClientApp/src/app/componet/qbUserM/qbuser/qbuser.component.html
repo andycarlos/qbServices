@@ -1,0 +1,68 @@
+<div class="container">
+  <div *ngIf="!messageSuccess" class="alert alert-danger" role="alert">
+    You are add the max number of user.
+    <div class="close" (click)="alertClose()" style="cursor:pointer">
+      <span aria-hidden="true">&times;</span>
+    </div>
+  </div>
+  <h1>Users</h1>
+  <hr>
+  <div class="row mb-2">
+    <div class="col-auto mr-auto">
+      <button type="button" class="btn btn-sm btn-info faa-parent animated-hover " (click)="linkAddUser()">
+        <i class="fas fa-plus faa-tada"></i>
+        Add User
+      </button>
+    </div>
+
+    <div class="col-auto">
+      <input [(ngModel)]="filter" class="form-control form-control-sm" type="search" placeholder="Filter" aria-label="Search">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div class="table-responsive">
+        <table class="table table-hover table-dark table-sm">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col" (click)="ordenByUser('email')" style="cursor:pointer">{{ordernEmail}} Email</th>
+              <th scope="col" (click)="ordenByUser('name')" style="cursor:pointer">{{ordernName}} Name</th>
+              <th scope="col" (click)="ordenByUser('typeUser')" style="cursor:pointer">{{ordernType}} Type</th>
+              <th scope="col">Permissions</th>
+              <th scope="col">Options</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of userList|qbfilterUser:filter | slice: (page-1) * pageSize : (page-1) * pageSize + pageSize;  index as i;">
+              <td scope="row">{{i+1 +((page-1) * pageSize)}}</td>
+              <td>{{user.email}}</td>
+              <td>
+                {{ user.name }}
+              </td>
+              <td>
+                {{ user.typeUser }}
+              </td>
+              <td>
+                <button class="btn btn-info btn-sm mr-2" (click)="editRolUser(user)" data-toggle="modal" data-target="#ModalRoles">{{user.roles.join(", ")}}</button>
+              </td>
+              <td>
+                <div>
+                  <button class="btn btn-success btn-sm mr-2" ngbTooltip="Change Password" (click)="editPasswordUser(user)" data-toggle="modal" data-target="#ModalPass"><i class="fas fa-key"></i></button>
+                  <button class="btn btn-danger btn-sm" ngbTooltip="Delete User" (click)="delect(user)" data-toggle="modal" data-target="#exampleModal"><i class="fas fa-user-slash"></i></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ngb-pagination [collectionSize]="(userList|qbfilterUser:filter).length" [(page)]="page" [pageSize]="pageSize" [maxSize]="7">
+      </ngb-pagination>
+      <div class="d-flex justify-content-center" *ngIf="load">
+        <div class="spinner-grow text-info" style="width: 3rem; height: 3rem;" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

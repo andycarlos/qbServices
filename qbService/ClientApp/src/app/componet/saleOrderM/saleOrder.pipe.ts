@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, Type } from '@angular/core';
 import { item, Invoce } from '../../services/qb.service';
 import { AbstractControl } from '@angular/forms';
 
@@ -7,10 +7,12 @@ import { AbstractControl } from '@angular/forms';
 })
 export class DescByItemPipe implements PipeTransform {
 
-    transform(items: item[], ItemRefListID: string): any {
-        if (!ItemRefListID || !items)
+    transform(items: item[], ItemFullName: string): any {
+        if (!ItemFullName || !items)
             return "";
-        return items.find(x => x.listID == ItemRefListID).salesDesc;
+        
+        let tempItem: item = items.find(x => x.fullName == ItemFullName);
+        return (tempItem != undefined) ? tempItem.salesDesc:'';
     }
 }
 
@@ -19,10 +21,11 @@ export class DescByItemPipe implements PipeTransform {
 })
 export class AmountByItemPipe implements PipeTransform {
 
-    transform(items: item[], ItemRefListID: string, quantityt: number): any {
-        if (!ItemRefListID || !items || !quantityt)
+    transform(items: item[], ItemFullName: string, quantityt: number): any {
+        if (!ItemFullName || !items || !quantityt)
             return "0";
-        let price: number = items.find(x => x.listID == ItemRefListID).salesPrice;
+        let tempItem: item = items.find(x => x.fullName == ItemFullName);
+        let price: number = (tempItem != undefined) ? tempItem.salesPrice:0;
 
         if (isNaN(quantityt))
             return '0';
@@ -36,18 +39,17 @@ export class AmountByItemPipe implements PipeTransform {
     pure: false
 })
 export class AmountTotalPipe implements PipeTransform {
-
+    
     transform(items: item[], controls: AbstractControl[]): any {
+        
         let amountTotal = 0;
         if (!items || !controls)
             return amountTotal.toFixed(2);
         controls.forEach(y => {
-            if (y.get('ItemRefListID').value != "") {
-                let price: number = items.find(x => x.listID == y.get('ItemRefListID').value).salesPrice;
-                let quantityt = y.get('Quantity').value;
-                if (!isNaN(quantityt))
-                    amountTotal += price * quantityt;
-            }
+            //console.log(y.get('ItemRefListID').value)
+            let Amount = y.get('Amount').value;
+            if (!isNaN(Amount))
+                amountTotal += Amount;
         });
         return amountTotal.toFixed(2);
     }

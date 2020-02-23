@@ -2,6 +2,8 @@
   <h1>{{(!userID)?'New User':'Edit User'}}</h1><!--*ngIf='!editMode'-->
   <!--<h1 *ngIf='editMode'>Edit Section</h1>-->
   <hr>
+  <!--form:{{formGroup.valid}}, Email:{{formGroup.get('email').valid}}, companyName:{{formGroup.get('companyName').valid}}, Phone:{{formGroup.get('phone').valid}}-->
+
   <form novalidate [formGroup]="formGroup" (ngSubmit)="save()">
 
     <!-- name -->
@@ -10,9 +12,13 @@
       <input formControlName="companyName"
              class="form-control form-control-sm"
              type="text" id="companyName" placeholder="Enter company name">
-      <small id="emailHelp" class="form-text"
+      <small class="form-text"
              *ngIf="((formGroup.get('companyName').touched || formGroup.get('companyName').dirty) && formGroup.get('companyName').errors?.required)">
         The field is required.
+      </small>
+      <small class="form-text"
+             *ngIf="((formGroup.get('companyName').touched || formGroup.get('companyName').dirty) && formGroup.get('companyName').errors?.anyCompanyName)">
+        The Company Name exist.
       </small>
     </div>
 
@@ -29,7 +35,7 @@
                class="form-control form-control-sm"
                type="text" id="email" placeholder="Enter Email">
       </div>
-      <small id="emailHelp" class="form-text"
+      <small class="form-text"
              *ngIf="((formGroup.get('email').touched || formGroup.get('email').dirty) && formGroup.get('email').errors?.required)">
         The field is required.
       </small>
@@ -51,7 +57,7 @@
              *ngIf="((formGroup.get('phone').touched || formGroup.get('phone').dirty) && formGroup.get('phone').errors?.required)">
         The field is required.
       </small>
-      <small id="emailHelp" class="form-text"
+      <small class="form-text"
              *ngIf="((formGroup.get('phone').touched || formGroup.get('phone').dirty) && formGroup.get('phone').errors?.pattern)">
         Phone number Invalid.
       </small>

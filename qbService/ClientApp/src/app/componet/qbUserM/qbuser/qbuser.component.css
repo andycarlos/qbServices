@@ -2,12 +2,12 @@ hr {
   border-color: white;
 }
 
-th {
-  background: rgb(25, 49, 73) !important;
+h1 {
+  color: white;
 }
 
-label {
-  color: white;
+th {
+  background: rgb(25, 49, 73) !important;
 }
 
 button {
@@ -19,5 +19,3 @@ button {
     background: rgb(34, 65, 98) !important;
     color: white !important;
   }
-
-

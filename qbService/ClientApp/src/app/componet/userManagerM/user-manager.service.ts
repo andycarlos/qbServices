@@ -14,10 +14,7 @@ export class UserManagerService {
         location: Location) {
         this.baseUrl = (location as any)._platformLocation._doc.baseURI + "api/Account";
     }
-    //Get all Users
-    getAllUser(): Observable<IUser[]> {
-        return this.http.get<IUser[]>(this.baseUrl + "/GetAllUser");
-    }
+    
     getUserByID(ID: string): Observable<IUser> {
         let head: HttpHeaders = new HttpHeaders().set("Content-Type", "application/json");
         return this.http.post<IUser>(this.baseUrl + "/GetUserByID", '"' + ID + '"', { headers: head });
@@ -25,6 +22,10 @@ export class UserManagerService {
     AnyUserByEmail(email: string): Observable<boolean> {
         let param = new HttpParams().set("Email", email);
         return this.http.get<boolean>(this.baseUrl + "/AnyUserByEmail", { params: param });
+    }
+    AnyCompanyName(companyName: string): Observable<boolean> {
+        let param = new HttpParams().set("CompanyName", companyName);
+        return this.http.get<boolean>(this.baseUrl + "/AnyCompanyName", { params: param });
     }
     setPassWord(passInfo: IPassWord): Observable<any> {
         return this.http.post(this.baseUrl + "/SetPassword", passInfo);
@@ -43,15 +44,7 @@ export class UserManagerService {
         return this.http.post<IUser>(this.baseUrl + "/Remove", user);
     }
 
-    GetListRoles(): Observable<IRole[]> {
-        return this.http.get<IRole[]>(this.baseUrl + "/GetAllRoles");
-    }
-    AddRolByUser(user: IUser, rol: IRole) {
-        return this.http.put(this.baseUrl + "/AddRolByUser/" + user.id, rol);
-    }
-    RemoveRolByUser(user: IUser, rol: IRole) {
-        return this.http.put(this.baseUrl + "/RemoveRolByUser/" + user.id, rol);
-    }
+
 }
 export interface IPassWord {
     id: string;

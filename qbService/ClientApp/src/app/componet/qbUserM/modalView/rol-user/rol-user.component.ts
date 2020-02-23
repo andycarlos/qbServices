@@ -8,8 +8,7 @@ import { IUser, IRole, UserService } from '../../../../services/user.service';
   templateUrl: './rol-user.component.html',
   styleUrls: ['./rol-user.component.css']
 })
-export class RolUserComponent implements OnInit, AfterViewChecked {
-
+export class QbRolUserComponent implements OnInit, AfterViewChecked {
 
     @Input() name;
     @Input() userSelect: IUser;
@@ -20,8 +19,8 @@ export class RolUserComponent implements OnInit, AfterViewChecked {
 
     ngOnInit() {
         this.RolesList = [];
-        
-        this._userService.GetListRoles().subscribe(x => {
+
+        this._userService.GetAllRolesUser().subscribe(x => {
             this.sectionExpire = '-';
             this.RolesList = x;
             this.RolesList.forEach(x => {

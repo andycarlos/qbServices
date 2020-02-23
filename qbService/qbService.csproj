@@ -29,11 +29,15 @@
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <Compile Remove="ClientApp\dist\**" />
+    <Compile Remove="ClientApp\src\app\componet\saleOrderM\modalView\**" />
     <Content Remove="$(SpaRoot)**" />
     <Content Remove="ClientApp\dist\**" />
+    <Content Remove="ClientApp\src\app\componet\saleOrderM\modalView\**" />
     <EmbeddedResource Remove="ClientApp\dist\**" />
+    <EmbeddedResource Remove="ClientApp\src\app\componet\saleOrderM\modalView\**" />
     <None Remove="$(SpaRoot)**" />
     <None Remove="ClientApp\dist\**" />
+    <None Remove="ClientApp\src\app\componet\saleOrderM\modalView\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
 
@@ -57,8 +61,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ClientApp\src\app\componet\saleOrderM\modalView\" />
-    <Folder Include="ClientApp\src\app\modalView\" />
     <Folder Include="ClientApp\src\app\pipe\" />
   </ItemGroup>
 

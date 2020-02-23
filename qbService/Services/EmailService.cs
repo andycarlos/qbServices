@@ -22,7 +22,7 @@ namespace qbService.Services
             {
                 using (var message = new MailMessage())
                 {
-                    message.From = new MailAddress(_configuration["email"], "SkyleaseAccess System");
+                    message.From = new MailAddress(_configuration["email"], "QuickBooks Services");
                     message.To.Add(new MailAddress(userEmail));
                     //message.CC.Add(new MailAddress("cc@email.com", "CC Name"));
                     //message.Bcc.Add(new MailAddress("bcc@email.com", "BCC Name"));
@@ -33,6 +33,7 @@ namespace qbService.Services
                     using (var client = new SmtpClient("smtp.gmail.com"))
                     {
                         client.Port = 587;
+                        client.UseDefaultCredentials = false;
                         client.Credentials = new NetworkCredential(_configuration["email"], _configuration["emailPass"]);
                         client.EnableSsl = true;
 

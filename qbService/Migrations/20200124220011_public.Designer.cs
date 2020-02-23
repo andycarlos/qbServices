@@ -10,8 +10,8 @@ using qbService.Models;
 namespace qbService.Migrations
 {
     [DbContext(typeof(ApplicationDbContex))]
-    [Migration("20191111224500_inicial")]
-    partial class inicial
+    [Migration("20200124220011_public")]
+    partial class @public
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -160,9 +160,15 @@ namespace qbService.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("CompanyName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreateTimer")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(256)")
@@ -171,11 +177,17 @@ namespace qbService.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("ListID")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasColumnType("nvarchar(256)")
@@ -200,10 +212,7 @@ namespace qbService.Migrations
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
-                    b.Property<string>("UserFistName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserLastName")
+                    b.Property<string>("TypeUser")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserName")
@@ -221,6 +230,63 @@ namespace qbService.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers");
+                });
+
+            modelBuilder.Entity("qbService.Models.SaleOrderConfigModel", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("CreditLimit")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("DaysNextDueDate")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InvocesDueDate")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ApplicationUserId")
+                        .IsUnique();
+
+                    b.ToTable("SaleOrderConfigModel");
+                });
+
+            modelBuilder.Entity("qbService.Models.Tarea", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("FinDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Task")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.ToTable("Tareas");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -272,6 +338,22 @@ namespace qbService.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("qbService.Models.SaleOrderConfigModel", b =>
+                {
+                    b.HasOne("qbService.Models.ApplicationUser", "ApplicationUser")
+                        .WithOne("SaleOrderConfigModel")
+                        .HasForeignKey("qbService.Models.SaleOrderConfigModel", "ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("qbService.Models.Tarea", b =>
+                {
+                    b.HasOne("qbService.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany("Tareas")
+                        .HasForeignKey("ApplicationUserId");
                 });
 #pragma warning restore 612, 618
         }

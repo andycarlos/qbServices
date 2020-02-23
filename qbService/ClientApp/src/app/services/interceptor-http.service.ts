@@ -14,7 +14,8 @@ export class InterceptorHttpService implements HttpInterceptor{
     let temp = this._userService.isLogin();
     if (temp === false) {
       this._userService.logout();
-      if (this.router.url.indexOf("login")==-1 && this.router.url.indexOf("forgotPassword") == -1) {
+        if (this.router.url.indexOf("login") == -1
+            && this.router.url.indexOf("forgotPassword") == -1) {
           this.router.navigate(['/login']);
           return of();
       }

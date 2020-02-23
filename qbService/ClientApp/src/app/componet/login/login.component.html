@@ -13,10 +13,10 @@
             </div>
             <div class="card-body">
 
+              <small id="emailHelp" class="form-text text-center" *ngIf="error">
+                {{error}}
+              </small>
               <form [formGroup]="formGroup" (ngSubmit)="submit()" novalidate>
-                <small id="emailHelp" class="form-text text-center" *ngIf="error">
-                  {{error}}
-                </small>
                 <div class="form-group">
                   <label for="uname1">Email</label>
                   <input id="email"
@@ -52,6 +52,7 @@
                         type="submit"
                         class="btn btn-success  float-right"
                         id="btnLogin">
+                  <i *ngIf="formGroup.disabled" class="fas fa-spinner fa-pulse"></i> 
                   Login
                 </button>
               </form>

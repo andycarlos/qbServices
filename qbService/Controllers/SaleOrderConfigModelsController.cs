@@ -26,8 +26,8 @@ namespace qbService.Controllers
         [HttpGet]
         public async Task<ActionResult> GetSaleOrderConfigModel()
         {
-            var email = User.Claims.ToList().FirstOrDefault(x => x.Type == "Email").Value.ToLower();
-            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email);
+            var emailMain = User.Claims.ToList().FirstOrDefault(x => x.Type == "EmailMain").Value.ToLower();
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == emailMain);
             if (user != null)
             {
                 var saleOrderConfig = await _context.SaleOrderConfigModel.AsNoTracking().FirstOrDefaultAsync(x => x.ApplicationUserId == user.Id);
@@ -41,8 +41,8 @@ namespace qbService.Controllers
         [HttpPost]
         public async Task<ActionResult> PostSaleOrderConfigModel(SaleOrderConfigModel1 saleOrderConfigModel)
         {
-            var email = User.Claims.ToList().FirstOrDefault(x => x.Type == "Email").Value.ToLower();
-            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email);
+            var emailMain = User.Claims.ToList().FirstOrDefault(x => x.Type == "EmailMain").Value.ToLower();
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == emailMain);
             if (user != null)
             {
                 try

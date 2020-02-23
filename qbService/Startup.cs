@@ -116,11 +116,28 @@ namespace qbService
                 var role = new IdentityRole("Admin");
                 _ = _roleManager.CreateAsync(role).Result;
             }
-            if (!_roleManager.RoleExistsAsync("User").Result)
+            //if (!_roleManager.RoleExistsAsync("User").Result)
+            //{
+            //    var role = new IdentityRole("User");
+            //    _ = _roleManager.CreateAsync(role).Result;
+            //}
+            if (!_roleManager.RoleExistsAsync("QbAdmin").Result)
             {
-                var role = new IdentityRole("User");
+                var role = new IdentityRole("QbAdmin");
                 _ = _roleManager.CreateAsync(role).Result;
             }
+            if (!_roleManager.RoleExistsAsync("CreateSO").Result)
+            {
+                var role = new IdentityRole("CreateSO");
+                _ = _roleManager.CreateAsync(role).Result;
+            }
+            if (!_roleManager.RoleExistsAsync("ConfigSO").Result)
+            {
+                var role = new IdentityRole("ConfigSO");
+                _ = _roleManager.CreateAsync(role).Result;
+            }
+
+
             if (!env.IsDevelopment())
             {
                 app.UseSpaStaticFiles();

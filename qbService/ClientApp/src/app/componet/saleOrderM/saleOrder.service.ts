@@ -38,6 +38,7 @@ export interface ISaleOrder {
 export interface ISalesOrderLineAdd {
     ItemRefListID: string;
     Quantity: number;
+    Amount: number;
 }
 export interface ICode {
     code: string;

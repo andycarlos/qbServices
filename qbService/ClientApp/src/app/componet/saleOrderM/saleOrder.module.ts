@@ -5,7 +5,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 //componet
 import { SaleOrderComponent } from './sale-order/sale-order.component';
 import { SaleOrderConfigComponent } from './sale-order-config/sale-order-config.component';
-import { AlerComponent } from './modalview/aler/aler.component';
 //pipe
 import { DescByItemPipe, AmountByItemPipe, AmountTotalPipe, AmountTotalByInvocePipe } from './saleOrder.pipe';
 //ngboostrap
@@ -16,7 +15,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
         AmountByItemPipe,
         AmountTotalPipe,
         AmountTotalByInvocePipe,
-        AlerComponent,
         SaleOrderConfigComponent
     ],
   imports: [
@@ -26,6 +24,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
       ReactiveFormsModule,
       NgbModule
     ],
-    entryComponents:[AlerComponent]
+    entryComponents:[]
 })
 export class SaleOrderMModule { }

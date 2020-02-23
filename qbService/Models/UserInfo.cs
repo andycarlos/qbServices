@@ -14,6 +14,9 @@ namespace qbService.Models
         public string Password { get; set; }
         public List<string> Roles { get; set; }
         public bool Block { get; set; }
+        public string TypeUser { get; set; }
+        public string Name { get; set; }
+        public string ListID { get; set; }
     }
     public class PassChange
     {

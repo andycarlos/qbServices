@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder, Validators, AsyncValidatorFn, ValidationErrors,
 import { UserService, IUser, IEmail } from '../../services/user.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable, of } from 'rxjs';
+import { QbService } from '../../services/qb.service';
 
 @Component({
   selector: 'app-login',
@@ -14,7 +15,8 @@ export class LoginComponent implements OnInit {
     constructor(private _userService: UserService,
         private _fb: FormBuilder,
         private _router: Router,
-        private _route: ActivatedRoute) {
+        private _route: ActivatedRoute,
+        private _qbService: QbService) {
 
         this.formGroup = _fb.group({
             email: ['', Validators.required, this.emalDuplication()],
@@ -33,36 +35,43 @@ export class LoginComponent implements OnInit {
             }
         }
     }
+
     formGroup: FormGroup;
     error;
     submit() {
 
         let loginInfo = this.formGroup.value as IUser;
+        this.formGroup.disable();
         this._userService.login(loginInfo).subscribe(x => {
             if (x["token"] !== undefined) {
-
                 this._userService.userEmail = loginInfo.email;
                 this._userService.tokenUserExpiration = x.expiration;
                 this._userService.token = x.token;
+                this._userService.type = x.type;
+                this._userService.userListID = x.listID;
                 localStorage.setItem("User", loginInfo.email);
                 localStorage.setItem("Pass", loginInfo.password);///
-
                 this._userService.access(x.roles);
-                this._userService.loginNow = true;
 
-                //if (this._userService.rolUser || this._userService.rolAdmin) {
-                //    this._router.navigate(['/home']);
-                //    return;
-                //}
-
-                //if (this._userService.rolFileAdd || this._userService.rolFileDel || this._userService.rolFileDownload) {
-                //    this._router.navigate(['/files']);
-                //    return;
-                //}
-
-                this._router.navigate(['/home']);
+                if (this._userService.type !="Customers" && this._userService.userListID != null) {
+                    this._qbService.getAllSalesRep().subscribe(rp => {
+                        rp.forEach(rpx => {
+                            if (rpx.userListID == this._userService.userListID)
+                                this._userService.SaleRepListID = rpx.saleRepListID;
+                        });
+                    }, null, () => {
+                            this._userService.loginNow = true;
+                            this._router.navigate(['/home']);
+                    });
+                }
+                else {
+                    this._userService.SaleRepListID = null
+                    this._userService.loginNow = true;
+                    this._router.navigate(['/home']);
+                }
             }
             else {
+                this.formGroup.enable();
                 this.error = x;
             }
         });

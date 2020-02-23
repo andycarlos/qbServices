@@ -2,12 +2,16 @@ hr {
   border-color: white;
 }
 
-th {
-  background: rgb(25, 49, 73) !important;
+h1 {
+  color: white;
 }
 
 label {
   color: white;
+}
+
+small {
+  color: darkorange;
 }
 
 button {
@@ -20,4 +24,9 @@ button {
     color: white !important;
   }
 
+.loading {
+  position: absolute;
+  top: 39px;
+  left: 20px;
+}
 
