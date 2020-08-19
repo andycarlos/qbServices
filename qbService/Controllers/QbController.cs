@@ -346,7 +346,6 @@ namespace qbService.Controllers
                 {
                     hubUser.ListVendors = new List<IQbVendors>();
                     hubUser.ListVendors.AddRange(JsonConvert.DeserializeObject<List<IQbVendors>>(response.Body));
-                    
                     //var data = JsonConvert.DeserializeObject<dynamic>(response.Body);
                     //if (data.QBXML.QBXMLMsgsRs.VendorQueryRs.VendorRet is Newtonsoft.Json.Linq.JArray)
                     //{
