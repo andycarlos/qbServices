@@ -5,7 +5,7 @@ import { ISaleOrder, SaleOrderService } from '../saleOrder.service';
 import { Router, Data } from '@angular/router';
 import { NgbModal, NgbModalConfig, NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, Subject, merge, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, map } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, map, catchError } from 'rxjs/operators';
 
 import { UserService } from '../../../services/user.service';
 import { AlerComponent } from '../../../modalView/aler/aler.component';
@@ -49,7 +49,11 @@ export class SaleOrderComponent implements OnInit {
         return text$.pipe(
             debounceTime(200),
             distinctUntilChanged(),
-            map(term => this.items.filter(v => v.fullName.toLowerCase().indexOf(term.toLowerCase()) > -1 || v.salesDesc.toLowerCase().indexOf(term.toLowerCase()) > -1))
+          map(term => this.items.filter(v => {
+            if (v.fullName != null && v.fullName != undefined && v.salesDesc != null && v.salesDesc != undefined)
+                    return v.fullName.toLowerCase().indexOf(term.toLowerCase()) > -1 || v.salesDesc.toLowerCase().indexOf(term.toLowerCase()) > -1
+                return false;
+          }))
         );
     }
     focusInput(e: Event) {

@@ -12,10 +12,6 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "root": "holam",
-        "Llave_super_secreta": "jiofjewaoijfoiweajfoijwaeoifjweoaijfoajweoifjawoiefjowia;oirhe",
-        "email": "qbservices2020@gmail.com",
-        "emailPass": "Qbservices.2020",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },

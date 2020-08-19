@@ -43,7 +43,7 @@ namespace qbService.Controllers
         [Route("GetAllUser")]
         [HttpGet]
         [Authorize(Roles = "Admin, QbAdmin")]
-        public async Task<ActionResult<IEnumerable<object>>> GetAllUsers()
+        public ActionResult<IEnumerable<object>> GetAllUsers()
         {
             //User.Claims.ToList().FirstOrDefault(x => x.Type == "EmailMain").Value.ToLower() ==
             //    User.Claims.ToList().FirstOrDefault(x => x.Type == "Email").Value.ToLower()
@@ -78,18 +78,14 @@ namespace qbService.Controllers
                     Phone = x.PhoneNumber,
                     Block = (x.LockoutEnd.ToString() != null) ? false : true
                 }).ToList();
-                //if (users.Count == 0)
-                //{
-                //    return Ok();
-                //}
             }
-            
+
             users.ForEach(x => x.Roles = new List<string>());
 
             var roles = _roleManager.Roles.ToList();
             foreach (IdentityRole item in roles)
             {
-                IList<ApplicationUser> userTemps =  _userManager.GetUsersInRoleAsync(item.Name).Result;
+                IList<ApplicationUser> userTemps = _userManager.GetUsersInRoleAsync(item.Name).Result;
                 if (userTemps != null)
                 {
                     users.ForEach(userinfo =>
@@ -99,7 +95,7 @@ namespace qbService.Controllers
                     });
                 }
             }
-            return  users;
+            return users;
         }
         [Route("GetUserByID")]
         [HttpPost]
@@ -544,8 +540,8 @@ namespace qbService.Controllers
             var expiration = DateTime.UtcNow.AddMinutes(120);
 
             JwtSecurityToken token = new JwtSecurityToken(
-               issuer: "skylease.com",
-               audience: "skylease.com",
+               issuer: "qbonlineservices.com",
+               audience: "qbonlineservices.com",
                claims: claims,
                expires: expiration,
                signingCredentials: creds);

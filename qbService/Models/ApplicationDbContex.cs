@@ -24,9 +24,9 @@ namespace qbService.Models
             base.OnModelCreating(modelBuilder);
         }
 
-        public DbSet<qbService.Models.Tarea> Tareas { get; set; }
+        public DbSet<Tarea> Tareas { get; set; }
 
-        public DbSet<qbService.Models.SaleOrderConfigModel> SaleOrderConfigModel { get; set; }
+        public DbSet<SaleOrderConfigModel> SaleOrderConfigModel { get; set; }
 
     }
 }

@@ -70,9 +70,9 @@ namespace qbService
                 options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidIssuer = "skylease.com",
+                    ValidIssuer = "qbonlineservices.com",
                     ValidateAudience = true,
-                    ValidAudience = "skylease.com",
+                    ValidAudience = "qbonlineservices.com",
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Llave_super_secreta"])),
                     ClockSkew = TimeSpan.Zero
@@ -116,11 +116,6 @@ namespace qbService
                 var role = new IdentityRole("Admin");
                 _ = _roleManager.CreateAsync(role).Result;
             }
-            //if (!_roleManager.RoleExistsAsync("User").Result)
-            //{
-            //    var role = new IdentityRole("User");
-            //    _ = _roleManager.CreateAsync(role).Result;
-            //}
             if (!_roleManager.RoleExistsAsync("QbAdmin").Result)
             {
                 var role = new IdentityRole("QbAdmin");

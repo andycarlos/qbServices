@@ -95,26 +95,29 @@ namespace qbService.Controllers
             var expiration = DateTime.UtcNow.AddYears(10);
 
             JwtSecurityToken token = new JwtSecurityToken(
-               issuer: "skylease.com",
-               audience: "skylease.com",
+               issuer: "qbonlineservices.com",
+               audience: "qbonlineservices.com",
                claims: claims,
                expires: expiration,
                signingCredentials: creds);
-
 
             return Ok(new
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expiration = expiration,
             });
-
         }
 
         [HttpGet]
         [Route("getCode")]
         public IActionResult GetCode([FromQuery] string name)
         {
-            var email = User.Claims.ToList().FirstOrDefault(x => x.Type == "Email").Value.ToLower();
+            var email = User.Claims.ToList().FirstOrDefault(x => x.Type == "EmailMain")?.Value?.ToLower() ?? null;
+            if (email == null)
+            { 
+                email = User.Claims.ToList().FirstOrDefault(x => x.Type == "Email").Value.ToLower();
+            }
+
             if (email != null)
             {
                 Random random = new Random();
@@ -135,13 +138,25 @@ namespace qbService.Controllers
         {
             try
             {
-                //emailModel.UserEmail = "acalfonso@skylease.aero";
-                string userEmail = emailModel.UserEmail;
-                if (emailModel.UserEmail == null|| emailModel.UserEmail == "")
-                { 
-                    userEmail = User.Claims.ToList().FirstOrDefault(x => x.Type == "EmailMain").Value.ToLower();
-                }
                 EmailService emailService = new EmailService(_configuration);
+
+                string userEmail = emailModel.UserEmail;
+                if (emailModel.UserEmail == null || emailModel.UserEmail == "")
+                {
+                    userEmail = User.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value?.ToLower();
+                    if(userEmail != null)
+                    {
+                        emailService.SendEmailSystem(userEmail, emailModel.Subject, emailModel.Body);
+                    }
+
+                    userEmail = User.Claims.ToList().FirstOrDefault(x => x.Type == "EmailMain")?.Value?.ToLower();
+                    if (userEmail != null)
+                    {
+                        emailService.SendEmailSystem(userEmail, emailModel.Subject, emailModel.Body);
+                    }
+                    return Ok();
+                }
+
                 emailService.SendEmailSystem(userEmail, emailModel.Subject, emailModel.Body);
                 return Ok();
             }
@@ -327,32 +342,34 @@ namespace qbService.Controllers
                 }
 
                 // getAllVendors-----------------------------------------
-                if (response.Body.IndexOf("VendorQueryRs") != -1)
+                if (response.Funcion == "getAllVendors")
                 {
                     hubUser.ListVendors = new List<IQbVendors>();
-                    var data = JsonConvert.DeserializeObject<dynamic>(response.Body);
-                    if (data.QBXML.QBXMLMsgsRs.VendorQueryRs.VendorRet is Newtonsoft.Json.Linq.JArray)
-                    {
-                        foreach (dynamic item in data.QBXML.QBXMLMsgsRs.VendorQueryRs.VendorRet)
-                        {
-                            hubUser.ListVendors.Add(new IQbVendors
-                            {
-                                ListID = (HasProperty(item, "ListID")) ? item.ListID : "",
-                                Name = (HasProperty(item, "Name")) ? item.Name : "",
-                                Email = (HasProperty(item, "Email")) ? item.Email : "",
-                            });
-                        }
-                    }
-                    if (data.QBXML.QBXMLMsgsRs.VendorQueryRs.VendorRet is Newtonsoft.Json.Linq.JObject)
-                    {
-                        dynamic item = data.QBXML.QBXMLMsgsRs.VendorQueryRs.VendorRet;
-                        hubUser.ListVendors.Add(new IQbVendors
-                        {
-                            ListID = (HasProperty(item, "ListID")) ? item.ListID : "",
-                            Name = (HasProperty(item, "Name")) ? item.Name : "",
-                            Email = (HasProperty(item, "Email")) ? item.Email : "",
-                        });
-                    }
+                    hubUser.ListVendors.AddRange(JsonConvert.DeserializeObject<List<IQbVendors>>(response.Body));
+                    
+                    //var data = JsonConvert.DeserializeObject<dynamic>(response.Body);
+                    //if (data.QBXML.QBXMLMsgsRs.VendorQueryRs.VendorRet is Newtonsoft.Json.Linq.JArray)
+                    //{
+                    //    foreach (dynamic item in data.QBXML.QBXMLMsgsRs.VendorQueryRs.VendorRet)
+                    //    {
+                    //        hubUser.ListVendors.Add(new IQbVendors
+                    //        {
+                    //            ListID = (HasProperty(item, "ListID")) ? item.ListID : "",
+                    //            Name = (HasProperty(item, "Name")) ? item.Name : "",
+                    //            Email = (HasProperty(item, "Email")) ? item.Email : "",
+                    //        });
+                    //    }
+                    //}
+                    //if (data.QBXML.QBXMLMsgsRs.VendorQueryRs.VendorRet is Newtonsoft.Json.Linq.JObject)
+                    //{
+                    //    dynamic item = data.QBXML.QBXMLMsgsRs.VendorQueryRs.VendorRet;
+                    //    hubUser.ListVendors.Add(new IQbVendors
+                    //    {
+                    //        ListID = (HasProperty(item, "ListID")) ? item.ListID : "",
+                    //        Name = (HasProperty(item, "Name")) ? item.Name : "",
+                    //        Email = (HasProperty(item, "Email")) ? item.Email : "",
+                    //    });
+                    //}
                 }
 
                 // getAllEmployee----------------------------------------
@@ -696,7 +713,7 @@ namespace qbService.Controllers
             {
                 string query = $"<?xml version=\"1.0\" encoding=\"utf-8\"?><?qbxml version=\"13.0\"?><QBXML><QBXMLMsgsRq onError=\"stopOnError\"><VendorQueryRq></VendorQueryRq></QBXMLMsgsRq></QBXML>";
                 Token = Guid.NewGuid().ToString();
-                await _serviceHub.Clients.Client(hubUser.ConectionId).SendAsync("runQuery", query, Token,"");
+                await _serviceHub.Clients.Client(hubUser.ConectionId).SendAsync("runQuery", query, Token, "getAllVendors");
                 if (TimeWait(hubUser))
                 {
                     List<IQbVendors> resul = new List<IQbVendors>();
