@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Location } from '@angular/common';
 import { Observable } from 'rxjs';
+import { ShipToAddress } from '../../services/qb.service';
 
 @Injectable({
     providedIn: 'root'
@@ -34,6 +35,8 @@ export class SaleOrderService {
 export interface ISaleOrder {
     CustomerRefListID: string;
     SalesOrderLineAdd: ISalesOrderLineAdd[];
+    ShipToAddress: ShipToAddress;
+    Nota: string;
 }
 export interface ISalesOrderLineAdd {
     ItemRefListID: string;

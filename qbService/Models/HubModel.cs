@@ -290,6 +290,8 @@ namespace qbService.Models
     {
         public string CustomerRefListID { get; set; }
         public List<IQbSalesOrderLineAdd> SalesOrderLineAdd { get; set; }
+        public ShipToAddress ShipToAddress { get; set; }
+        public string Nota { get; set; }
     }
     public class IQbSalesOrderLineAdd
     {

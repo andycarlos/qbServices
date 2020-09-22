@@ -49,7 +49,12 @@ namespace qbService.Controllers
                 if (System.IO.File.Exists(item))
                 {
                     var fi1 = new FileInfo(item);
-                    if (fi1.Name != "assambly.txt")
+                    if (fi1.Name != "UDQS.deps.json" &&
+                        fi1.Name != "UDQS.dll" &&
+                        fi1.Name != "UDQS.exe" &&
+                        fi1.Name != "UDQS.pdb" &&
+                        fi1.Name != "UDQS.runtimeconfig.dev.json" &&
+                        fi1.Name != "UDQS.runtimeconfig.json")
                     {
                         fileInformationResul.Add(new FileInformation()
                         {

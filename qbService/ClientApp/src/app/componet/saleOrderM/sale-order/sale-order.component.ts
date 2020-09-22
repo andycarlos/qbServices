@@ -120,7 +120,8 @@ export class SaleOrderComponent implements OnInit {
         this.formGroup = this._fb.group({
             CustomerRefListID: new FormControl('', Validators.required),
             SalesOrderLineAdd: this._fb.array([], Validators.required),
-            Shiping: new FormControl()
+            Shiping: new FormControl(),
+            Nota: new FormControl()
         });
         //this.formGroup.valueChanges.subscribe(x => console.log(x));
     }
@@ -367,7 +368,9 @@ export class SaleOrderComponent implements OnInit {
             //Crea sale ordern
             let saleOrder: ISaleOrder = {
                 CustomerRefListID: this.customerSelect.listID,
-                SalesOrderLineAdd: []
+                SalesOrderLineAdd: [],
+                ShipToAddress: this.Shiping,
+                Nota: this.formGroup.get('Nota').value
             };
 
             (this.formGroup.controls['SalesOrderLineAdd'] as FormArray).controls.forEach(x => {

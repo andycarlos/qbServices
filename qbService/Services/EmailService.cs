@@ -16,7 +16,7 @@ namespace qbService.Services
         {
             this._configuration = configuration;
         }
-        public void SendEmailSystem(string userEmail, string Subject, string Body)
+        public Task SendEmailSystem(string userEmail, string Subject, string Body)
         {
             try
             {
@@ -45,6 +45,7 @@ namespace qbService.Services
             {
                 throw e;
             }
+            return Task.CompletedTask;
         }
     }
 }

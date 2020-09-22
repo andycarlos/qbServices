@@ -43,10 +43,10 @@ namespace qbService.Controllers
             IConfiguration configuration,
             IHubContext<ServiceHub> serviceHub)
         {
-            this._userManager = userManager;
-            this._signInManager = signInManager;
-            this._configuration = configuration;
-            this._serviceHub = serviceHub;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _configuration = configuration;
+            _serviceHub = serviceHub;
         }
 
         [HttpPost]
@@ -134,7 +134,7 @@ namespace qbService.Controllers
         [HttpPost]
         [Route("Email")]
         [AllowAnonymous]
-        public IActionResult Email([FromBody] EmailModel emailModel)
+        public async Task<IActionResult> Email([FromBody] EmailModel emailModel)
         {
             try
             {
@@ -146,18 +146,18 @@ namespace qbService.Controllers
                     userEmail = User.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value?.ToLower();
                     if(userEmail != null)
                     {
-                        emailService.SendEmailSystem(userEmail, emailModel.Subject, emailModel.Body);
+                       await emailService.SendEmailSystem(userEmail, emailModel.Subject, emailModel.Body);
                     }
 
-                    userEmail = User.Claims.ToList().FirstOrDefault(x => x.Type == "EmailMain")?.Value?.ToLower();
-                    if (userEmail != null)
+                    var userEmail1 = User.Claims.ToList().FirstOrDefault(x => x.Type == "EmailMain")?.Value?.ToLower();
+                    if (userEmail1 != null && userEmail != userEmail1)
                     {
-                        emailService.SendEmailSystem(userEmail, emailModel.Subject, emailModel.Body);
+                       await emailService.SendEmailSystem(userEmail1, emailModel.Subject, emailModel.Body);
                     }
                     return Ok();
                 }
 
-                emailService.SendEmailSystem(userEmail, emailModel.Subject, emailModel.Body);
+                await emailService.SendEmailSystem(userEmail, emailModel.Subject, emailModel.Body);
                 return Ok();
             }
             catch (Exception e)
@@ -849,6 +849,33 @@ namespace qbService.Controllers
                 if (body.CustomerRefListID != String.Empty)
                     customerID = "<CustomerRef><ListID>" + body.CustomerRefListID + "</ListID></CustomerRef>";
 
+                string shipToAddress = String.Empty;
+                if (body.ShipToAddress != null)
+                {
+                    shipToAddress += "<ShipAddress>";
+                    if (body.ShipToAddress.Addr1 !=null)
+                        shipToAddress += $"<Addr1>{body.ShipToAddress.Addr1}</Addr1>";
+                    if (body.ShipToAddress.Addr2 != null)
+                        shipToAddress += $"<Addr2>{body.ShipToAddress.Addr2}</Addr2>";
+                    if (body.ShipToAddress.Addr3 != null)
+                        shipToAddress += $"<Addr3>{body.ShipToAddress.Addr3}</Addr3>";
+                    if (body.ShipToAddress.Addr4 != null)
+                        shipToAddress += $"<Addr4>{body.ShipToAddress.Addr4}</Addr4>";
+                    if (body.ShipToAddress.Addr5 != null)
+                        shipToAddress += $"<Addr5>{body.ShipToAddress.Addr5}</Addr5>";
+                    if (body.ShipToAddress.City != null)
+                        shipToAddress += $"<City>{body.ShipToAddress.City}</City>";
+                    if (body.ShipToAddress.State != null)
+                        shipToAddress += $"<State>{body.ShipToAddress.State}</State>";
+                    if (body.ShipToAddress.PostalCode != null)
+                        shipToAddress += $"<PostalCode>{body.ShipToAddress.PostalCode}</PostalCode>";
+                    if (body.ShipToAddress.Country != null)
+                        shipToAddress += $"<Country>{body.ShipToAddress.Country}</Country>";
+                    if (body.ShipToAddress.Note != null)
+                        shipToAddress += $"<Note>{body.ShipToAddress.Note }</Note>";
+                    shipToAddress += "</ShipAddress>";
+                }
+
                 string SalesOrderLineAdd = String.Empty;
                 if (body.SalesOrderLineAdd != null)
                 {
@@ -856,9 +883,11 @@ namespace qbService.Controllers
                     {
                         SalesOrderLineAdd += "<SalesOrderLineAdd><ItemRef><ListID>" + item.ItemRefListID + "</ListID></ItemRef>" + "<Quantity>" + item.Quantity + "</Quantity><Amount>"+ string.Format("{0:0.00}", item.Amount) +"</Amount></SalesOrderLineAdd>";
                     }
+                    if(!String.IsNullOrEmpty(body.Nota))
+                        SalesOrderLineAdd += "<SalesOrderLineAdd><Desc>" + body.Nota + "</Desc></SalesOrderLineAdd>";
                 }
 
-                string query = $"<?xml version=\"1.0\" encoding=\"utf-8\"?><?qbxml version=\"13.0\"?><QBXML><QBXMLMsgsRq onError=\"stopOnError\"><SalesOrderAddRq><SalesOrderAdd>" + customerID + SalesOrderLineAdd + "</SalesOrderAdd></SalesOrderAddRq></QBXMLMsgsRq></QBXML>";
+                string query = $"<?xml version=\"1.0\" encoding=\"utf-8\"?><?qbxml version=\"13.0\"?><QBXML><QBXMLMsgsRq onError=\"stopOnError\"><SalesOrderAddRq><SalesOrderAdd>" + customerID + shipToAddress + SalesOrderLineAdd + "</SalesOrderAdd></SalesOrderAddRq></QBXMLMsgsRq></QBXML>";
                 Token = Guid.NewGuid().ToString();
                 await _serviceHub.Clients.Client(hubUser.ConectionId).SendAsync("runQuery", query, Token,"");
                 if (TimeWait(hubUser))
